@@ -1,0 +1,50 @@
+dataset/wavs/mc4-03794.wav|usaj məmboroŋ pakajan kədua tərsaŋka dibəri uaŋ rp dʒuta oləh səoraŋ warga asiŋ jaŋ masih kami buru itu uŋkapɲa
+dataset/wavs/mc4-00486.wav|kita akan saŋat mərasakan nikmatɲa kəmərdəkaan kalaw pəpəraŋan sudah mənimpa kita
+dataset/wavs/mc4-04916.wav|obat jaŋ kadaluwarsa dapat məndʒadi tidak əfəktif dalam mərawat kondisi jaŋ dirəsəpkan
+dataset/wavs/mc4-01569.wav|dariɲa mərəka mənuntut xabar təntaŋ pasaŋan jaŋ məlarikan diri
+dataset/wavs/mc4-06354.wav|itu haɲa bəbərapa tʃontoh kasus jaŋ tərdʒadi masih baɲak lagi rəntətan kasus məmilukan jaŋ tərdʒadi dalam dunia pəndidikan
+dataset/wavs/mc4-01045.wav|sm əntərtajnmənt di suho əkso akan mərilis tʃurtajn siŋlə təraxir sm station pada fəbruari
+dataset/wavs/mc4-00387.wav|pada kundʒuŋan tərsəbut ada hal bərbəda dari mənakər m hanif məŋəmudikan səndiri mobilɲa mənudʒu lokasi atʃara
+dataset/wavs/id_ID-train-01861.wav|pəmbatʃa portabəl harus bərbitʃara dəŋan dʒəlas untuk asistən lokal tanpa intərnət variant
+dataset/wavs/mc4-06415.wav|ia pun siap apabila ditəmpatkan di bək kiri mawpun bək təŋah
+dataset/wavs/mc4-00708.wav|səməntara itu gubərnur dki dʒakarta aniəs baswədan məŋatakan pihakɲa akan məɲiapkan situasi jaŋ kondusif saat kampaɲə pilprəs di ibu kota
+dataset/wavs/id_ID-train-00457.wav|narator tənaŋ pərlu məndʒaga təmpo jaŋ stabil saat məmbatʃa pəmbaruan siŋkat
+dataset/wavs/mc4-04171.wav|ini tidak haɲa bərlaku untuk baji dan anak anak sadʒa tətapi dʒuga oraŋ dəwasa
+dataset/wavs/mc4-05199.wav|komnas ham məlaporkan saat ini masih ada dua oraŋ jaŋ bəlum ditəmukan tərkajt pəristiwa tərsəbut
+dataset/wavs/id_ID-train-00412.wav|pəraŋkat təpi səbajkɲa məŋuraŋi buɲi logam səbəlum kalimat bərikutɲa dimulaj
+dataset/wavs/id_ID-train-01669.wav|dəkodər harus bərbitʃara dəŋan dʒəlas untuk asistən lokal tanpa intərnət variant
+dataset/wavs/mc4-06182.wav|sorə hiŋga mənudʒu saŋ surja mulaj təŋgəlam stagə diguntʃaŋ oləh pənampilan nosəgrind gljph us dollar dan whitə rosə jaŋ mərupakan unit pop punk bərisikan əmpat pria asal pulaw dəwata
+dataset/wavs/id_ID-train-00876.wav|asistən lokal harus məmbatʃa kalimat baru dəŋan bajk səbəlum kalimat bərikutɲa dimulaj variant
+dataset/wavs/mc4-05173.wav|portofolio onlinə mampu məŋatasi hal tərsəbut
+dataset/wavs/mc4-01165.wav|tahap ii akan mulaj dibaŋun kətika tahap i bəropərasi dan ditargətkan bəropərasi pada tahun
+dataset/wavs/mc4-02632.wav|pada april mərəka dipindahkan kə polda papua untuk pənahanan ləbih landʒut
+dataset/wavs/id_ID-train-00042.wav|modəl suara kətʃil harus məmbatʃa kalimat baru dəŋan bajk kətika məmbatʃakan bagian dari buku
+dataset/wavs/mc4-01179.wav|dan tərdokuməntasikan sətʃara sistəmatis bajk məlalui situas thəglobal rəviəw tʃom bajk məlalui rubrik rubrik jaŋ ada didalamɲa mawpun jaŋ tərdapat dalam rubrik arsip
+dataset/wavs/mc4-06479.wav|dəŋan kəhadiran smartphonə nokia produsən asal finlandia ini bərusaha məɲadʒikan varin androjd kə təŋah təŋah maʃarakat dəŋan pilihan jaŋ ləbih variatif
+dataset/wavs/mc4-05730.wav|divinə rapiər adalah pilihan təraxir anda untuk pərmasalahan ini
+dataset/wavs/mc4-03967.wav|novi ant komisi pəŋawasan dan pərlinduŋan anak daərah kppad bali məŋgandəŋ jajasan guna məntʃəgah tərdʒadiɲa kəkərasan səksual tərhadap anak
+dataset/wavs/id_ID-train-01572.wav|modəl suara kətʃil pərlu məmbəri dʒəda jaŋ alami səbəlum kalimat bərikutɲa dimulaj variant
+dataset/wavs/mc4-01369.wav|lantaran ənam unit mobil gudaŋ kasur gudaŋ pəɲimpanan kajn dan pərkantoran haŋus dilalap si dʒago mərah
+dataset/wavs/mc4-06253.wav|kaməra jaŋ dihadirkan dəŋan fitur gəo taggiŋ mədia sosial bəlakaŋan ini adalah salah satu jaŋ paliŋ diminati xususɲa para pəŋguna ponsəl
+dataset/wavs/mc4-00383.wav|dari səmua komponən tʃadəv porsi surat bərharga dalam valas jaŋ paliŋ dominan ləbih dari
+dataset/wavs/id_ID-train-00819.wav|modəl suara kətʃil səbajkɲa ɲaman didəŋar dalam waktu lama kətika aŋka səpərti dan muntʃul variant
+dataset/wavs/mc4-01005.wav|xususɲa kəkərasan səksual jaŋ masih tʃukup baɲak tərdʒadi axir axir ini
+dataset/wavs/mc4-05306.wav|pərguruan tiŋgi bisnis diakrəditasi oləh assotʃiation to advantʃə tʃolləgiatə stʃhools of businəss aatʃsb intərnational
+dataset/wavs/id_ID-train-01564.wav|modəl suara kətʃil səbajkɲa məŋuraŋi buɲi logam səbəlum kalimat bərikutɲa dimulaj variant
+dataset/wavs/mc4-00845.wav|sumbər www wmagazinə tʃom mitʃkəj adalah pəmuda pənuh ambisi jaŋ haws akan pəŋalaman baru
+dataset/wavs/mc4-01226.wav|aston tandʒuŋ tʃitj hotəl mənawarkan pilihan kamar dan suitə jaŋ imadʒinatif dirantʃaŋ dəŋan kətʃaŋgihan klasik dan kontəmporər
+dataset/wavs/mc4-00601.wav|artitʃlə toghr tʃom laŋsuŋ kərdʒa wisuda suatu momən jaŋ paliŋ dituŋgu dan bərkəsan bagi para mahasiswa
+dataset/wavs/mc4-04961.wav|tidak haɲa makan dan minum kəbutuhan lajɲa səpərti pəŋobatan dan dʒuga tənda səlimut dan makanan tambahan dʒuga wadʒib di pənuhi pəmərintah
+dataset/wavs/mc4-00246.wav|oləh aris wibowo on rabu nov lənovo baru sadʒa mələpas varian spəsial ədition bərnama lənovo k notə musitʃ untuk məndampiŋi səri k notə jaŋ sudah diluntʃurkan ləbih dulu
+dataset/wavs/mc4-04196.wav|sədʒak itu sonakshi səriŋ muntʃul di bərbagaj film nasional india
+dataset/wavs/mc4-06235.wav|sumbər kalsium bisa dari sajuran ikan ataw susu
+dataset/wavs/id_ID-train-00520.wav|toloŋ batʃa butir dəŋan dʒəda jaŋ tənaŋ lalu landʒutkan kə kalimat bərikutɲa
+dataset/wavs/mc4-01320.wav|bagi suportər jaŋ bəlum məndapatkan tikət mərəka haɲa mənanti pəməsan jaŋ tak məmbajar pəsanan hiŋga batas waktu
+dataset/wavs/mc4-03800.wav|ləbih sulit untuk dikonfigurasi kətimbaŋ modəl rəgulator di amərika sərikat
+dataset/wavs/mc4-02628.wav|dʒika səsəoraŋ tidak məmiliki masalah pəntʃərnaan sərius ia boləh məŋonsumsi kəduaɲa sətʃara bərsamaan dalam porsi wadʒar
+dataset/wavs/mc4-04808.wav|dʒaga tanaman sədikit ləbih kəriŋ di musim diŋin dan mənaŋguhkan pəmupukan sampaj musim səmi
+dataset/wavs/mc4-06850.wav|saat ini kantor tʃabaŋ kita sudah məntʃapaj udʒarɲa
+dataset/wavs/mc4-06010.wav|kontrolər ɲa kuraŋ ləbih mirip dəŋan kontrolər gəar vr
+dataset/wavs/id_ID-train-00149.wav|dəkodər harus məndʒaga vokal tətap bərsih untuk asistən lokal tanpa intərnət
+dataset/wavs/mc4-05486.wav|siapkan gəlas sadʒi tuaŋ gula mərah kəmudian tʃampuran susu bubuk dan susu kəntal manis
+dataset/wavs/id_ID-train-00512.wav|narator tənaŋ pərlu məndʒaga pəŋutʃapan jaŋ dapat dipərtʃaja tanpa tərdəŋar tərlalu tʃəpat ataw tərpotoŋ
