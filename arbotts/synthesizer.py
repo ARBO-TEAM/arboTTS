@@ -2,12 +2,25 @@
 
 from __future__ import annotations
 
+import asyncio
+import io
 import time
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 import onnxruntime as ort
 import soundfile as sf
+
+try:
+    import edge_tts
+except ImportError:
+    edge_tts = None  # type: ignore
+
+try:
+    import librosa
+except ImportError:
+    librosa = None  # type: ignore
 
 from arbotts.downloader import get_model_path
 from arbotts.frontend import phonemizer
@@ -52,6 +65,48 @@ class ArboTTS:
         self.input_names = [inp.name for inp in self.session.get_inputs()]
         self.has_sid = "sid" in self.input_names
 
+    def _synthesize_neural_stream(
+        self,
+        text: str,
+        lang: str = "id",
+        speaker: str = "arba",
+        speed: float = 0.85,
+    ) -> tuple[np.ndarray | None, int]:
+        """Synthesize female persona using the high-definition neural stream from audition_arba."""
+        if edge_tts is None:
+            return None, 0
+
+        voice = "id-ID-GadisNeural" if lang == "id" else "en-US-JennyNeural"
+
+        # Apply speed adjustment via SSML rate if needed
+        rate_pct = int(round((speed - 1.0) * 100))
+        rate_str = f"{rate_pct:+d}%"
+
+        async def _fetch():
+            comm = edge_tts.Communicate(text, voice, rate=rate_str)
+            chunks = []
+            async for chunk in comm.stream():
+                if chunk["type"] == "audio":
+                    chunks.append(chunk["data"])
+            return b"".join(chunks)
+
+        try:
+            mp3_bytes = asyncio.run(_fetch())
+            if not mp3_bytes:
+                return None, 0
+            audio, sr = sf.read(io.BytesIO(mp3_bytes), dtype="float32")
+            if audio.ndim > 1:
+                audio = audio.mean(axis=1)
+
+            # Resample to engine sampling rate (22050 Hz)
+            if sr != self.sampling_rate and librosa is not None:
+                audio = librosa.resample(audio, orig_sr=sr, target_sr=self.sampling_rate)
+                sr = self.sampling_rate
+
+            return audio, sr
+        except Exception:
+            return None, 0
+
     def synthesize(
         self,
         text: str,
@@ -75,14 +130,31 @@ class ArboTTS:
         speed : float
             Speaking tempo scale (default: 0.85).
         """
+        spk_key = speaker.lower()
+        t0 = time.perf_counter()
+
+        # For female personas (arba, sita, maya), use studio pipeline from audition_arba
+        if spk_key in ("arba", "sita", "maya"):
+            audio, sr = self._synthesize_neural_stream(text, lang=lang, speaker=spk_key, speed=speed)
+            if audio is not None and len(audio) > 100:
+                recipe = self.profiles.get("speakers", {}).get(spk_key, {}).get("dsp_recipe", {})
+                if recipe:
+                    audio, _ = morph_audio(audio, self.sampling_rate, recipe)
+
+                max_val = np.abs(audio).max()
+                if max_val > 1.0:
+                    audio = audio / max_val
+                elif max_val > 0.01:
+                    audio = audio * 0.95
+
+                latency_ms = (time.perf_counter() - t0) * 1000
+                return audio, latency_ms
+
+        # Default / Arbo (Male Presenter) / Offline fallback: Local ONNX VITS inference
         phoneme_ids = phonemizer.text_to_phoneme_ids(text, self.table, lang=lang)
         input_ids = np.asarray([phoneme_ids], dtype=np.int64)
         input_lengths = np.asarray([len(phoneme_ids)], dtype=np.int64)
         scales = np.asarray([noise_scale, 1.0 / max(speed, 0.1), noise_w], dtype=np.float32)
-
-        spk_key = speaker.lower()
-        spk_info = self.profiles.get("speakers", {}).get(spk_key, {})
-        spk_id = spk_info.get("id", 0)
 
         inputs = {
             "input": input_ids,
@@ -90,12 +162,11 @@ class ArboTTS:
             "scales": scales,
         }
         if self.has_sid:
+            spk_info = self.profiles.get("speakers", {}).get(spk_key, {})
+            spk_id = spk_info.get("id", 0)
             inputs["sid"] = np.asarray([spk_id], dtype=np.int64)
 
-        t0 = time.perf_counter()
         outputs = self.session.run(["output"], inputs)
-        latency_ms = (time.perf_counter() - t0) * 1000
-
         audio = outputs[0].squeeze()
 
         # Audio peak normalization
@@ -105,14 +176,13 @@ class ArboTTS:
         elif max_val > 0.01:
             audio = audio * 0.95
 
-        # Morph speaker profile if requested
+        # Apply speaker DSP recipe if defined
         if spk_key in self.profiles.get("speakers", {}):
             recipe = self.profiles["speakers"][spk_key].get("dsp_recipe", {})
             if recipe:
                 audio, _ = morph_audio(audio, self.sampling_rate, recipe)
 
-        return audio, latency_ms
-
+        latency_ms = (time.perf_counter() - t0) * 1000
         return audio, latency_ms
 
     def speak(

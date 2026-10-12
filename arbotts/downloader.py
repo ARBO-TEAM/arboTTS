@@ -44,17 +44,17 @@ def get_model_path(model_dir: str | Path | None = None) -> tuple[Path, Path]:
     # Check cache directory
     candidates.append(DEFAULT_CACHE_DIR)
 
-    # First check for v2 multi-speaker model
-    for base in candidates:
-        m_path = base / MODEL_FILES_V2["model"]
-        c_path = base / MODEL_FILES_V2["config"]
-        if m_path.is_file() and c_path.is_file():
-            return m_path, c_path
-
-    # Fall back to v1 single-speaker model
+    # Check for v1 broadcast-quality model first
     for base in candidates:
         m_path = base / MODEL_FILES_V1["model"]
         c_path = base / MODEL_FILES_V1["config"]
+        if m_path.is_file() and c_path.is_file():
+            return m_path, c_path
+
+    # Check for v2 if v1 not present
+    for base in candidates:
+        m_path = base / MODEL_FILES_V2["model"]
+        c_path = base / MODEL_FILES_V2["config"]
         if m_path.is_file() and c_path.is_file():
             return m_path, c_path
 
