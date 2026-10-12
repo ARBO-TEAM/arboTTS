@@ -8,6 +8,7 @@ Generates comprehensive audition samples for Indonesian speech.
 from __future__ import annotations
 
 import argparse
+import re
 import sys
 import time
 from pathlib import Path
@@ -28,6 +29,20 @@ DEFAULT_REF_TEXT = (
     "Halo, ini contoh rekaman suara referensi untuk kloning suara. Saya membaca beberapa "
     "kalimat biasa dengan tempo yang santai dan intonasi yang wajar."
 )
+
+
+def normalize_indonesian_phonetics(text: str) -> str:
+    """Map Indonesian orthography quirks to English-based speech tokens.
+
+    Specifically, in Indonesian the letter 'c' is always voiceless affricate /tʃ/
+    (like 'ch' in English 'chocolate'). Without this mapping, multilingual models
+    trained with English rules interpret 'ca', 'co', 'cu' as hard /k/ ('kontoh', 'koba').
+    """
+    # Replace 'c' before vowels with 'ch' (contoh -> chontoh, coba -> choba, rencana -> renchana)
+    text = re.sub(r"(?<![sS])c(?=[aeiouyAEIOUY])", "ch", text)
+    text = re.sub(r"(?<![sS])C(?=[aeiouyAEIOUY])", "Ch", text)
+    return text
+
 
 AUDITION_TESTS = {
     "test_01_sapaan": (
@@ -67,12 +82,15 @@ def run_voice_clone(
     print(f"Model loaded in {time.time() - t0:.1f}s\n", flush=True)
 
     for test_name, text in AUDITION_TESTS.items():
+        spoken_text = normalize_indonesian_phonetics(text)
         print(f"--> Mensintesis [{test_name}]...")
         print(f"    Teks: \"{text}\"")
+        if spoken_text != text:
+            print(f"    Fonetik: \"{spoken_text}\"")
         t_start = time.time()
 
         audio = m.generate(
-            text,
+            spoken_text,
             reference=str(ref_audio),
             reference_text=ref_text,
             normalize=False,
