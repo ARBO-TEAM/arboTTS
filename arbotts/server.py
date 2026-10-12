@@ -34,23 +34,25 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-_TTS_ENGINE: ArboTTS | None = None
+_ENGINES: dict[str, ArboTTS] = {}
 
 
-def get_engine() -> ArboTTS:
-    global _TTS_ENGINE
-    if _TTS_ENGINE is None:
-        _TTS_ENGINE = ArboTTS()
-    return _TTS_ENGINE
+def get_engine(tier: str = "standard") -> ArboTTS:
+    global _ENGINES
+    normalized_tier = tier.lower().strip()
+    if normalized_tier not in _ENGINES:
+        _ENGINES[normalized_tier] = ArboTTS(tier=normalized_tier)
+    return _ENGINES[normalized_tier]
 
 
 class OpenAISpeechRequest(BaseModel):
     model: str = "arbotts"
     input: str = Field(..., description="The text to generate audio for.")
-    voice: str = Field("arbo", description="Speaker profile: arbo, arba, sita, maya.")
+    voice: str = Field("arbo", description="Speaker profile: arbo, bimo, dimas, danu, arba, sita, maya.")
     response_format: str = Field("wav", description="Audio format (wav).")
     speed: float = Field(0.85, ge=0.25, le=4.0, description="Speed factor (default: 0.85).")
     lang: str = Field("id", description="Language code: 'id' or 'en'.")
+    tier: str = Field("standard", description="Model tier: 'standard' (60MB) or 'small' (31MB).")
 
 
 WEB_UI_HTML = """<!DOCTYPE html>
@@ -143,15 +145,29 @@ WEB_UI_HTML = """<!DOCTYPE html>
       <button class="preset-btn" onclick="setPreset('The old oak tree stood quietly at the edge of the forest, watching generations pass by.', 'en')">📖 Calm Narration</button>
     </div>
 
+    <div class="control-label" style="margin-bottom:6px">PILIH MODEL TIER (UKURAN & KECEPATAN)</div>
+    <div class="tier-row" style="display:flex;gap:10px;margin-bottom:16px">
+      <div class="tier-btn active" id="tierStandard" onclick="setTier('standard')" style="flex:1;background:rgba(88,166,255,0.15);border:1px solid var(--accent);color:var(--text);padding:10px;border-radius:8px;cursor:pointer;transition:0.2s;text-align:center;">
+        <div style="font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;gap:6px;">🚀 Standard Tier <span style="font-size:10px;padding:2px 6px;border-radius:10px;background:rgba(88,166,255,0.2);color:var(--accent);">60 MB</span></div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">Studio High-Fidelity VITS</div>
+      </div>
+      <div class="tier-btn" id="tierSmall" onclick="setTier('small')" style="flex:1;background:var(--chip-bg);border:1px solid var(--border);color:var(--text);padding:10px;border-radius:8px;cursor:pointer;transition:0.2s;text-align:center;">
+        <div style="font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;gap:6px;">⚡ Small Tier <span style="font-size:10px;padding:2px 6px;border-radius:10px;background:rgba(46,160,67,0.2);color:#3fb950;">31 MB</span></div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">Distilled VITS (Ultra-Low RTF)</div>
+      </div>
+    </div>
+
     <textarea id="textInput" placeholder="Ketik kalimat yang ingin diucapkan di sini...">Halo, selamat pagi, Indonesia. Awali hari Seninmu dengan penuh ceria!</textarea>
 
     <div class="control-grid">
       <div class="control-card">
         <div class="control-label">Pilih Karakter Suara (Speaker)</div>
-        <div style="font-size:10px;color:var(--accent);margin-bottom:4px;font-weight:600">👨 SUARA PRIA:</div>
-        <div class="speakers-row" style="margin-bottom:8px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <div style="font-size:10px;color:var(--accent);font-weight:700">⭐ PERSONA UTAMA (PRIA - REKOMENDASI):</div>
+        </div>
+        <div class="speakers-row" style="margin-bottom:10px">
           <div class="speaker-btn active" onclick="setSpeaker('arbo', this)">
-            <span class="icon">🎙️</span> Arbo<br><span style="font-size:10px;color:var(--text-muted)">Penyiar</span>
+            <span class="icon">🎙️</span> Arbo<br><span style="font-size:10px;color:var(--text-muted)">Penyiar (ONNX)</span>
           </div>
           <div class="speaker-btn" onclick="setSpeaker('bimo', this)">
             <span class="icon">📢</span> Bimo<br><span style="font-size:10px;color:var(--text-muted)">Baritone</span>
@@ -163,7 +179,7 @@ WEB_UI_HTML = """<!DOCTYPE html>
             <span class="icon">☕</span> Danu<br><span style="font-size:10px;color:var(--text-muted)">Santun</span>
           </div>
         </div>
-        <div style="font-size:10px;color:var(--accent);margin-bottom:4px;font-weight:600">👩 SUARA WANITA:</div>
+        <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;font-weight:600">👩 PERSONA TAMBAHAN (WANITA):</div>
         <div class="speakers-row" style="grid-template-columns: repeat(3, 1fr)">
           <div class="speaker-btn" onclick="setSpeaker('arba', this)">
             <span class="icon">👩</span> Arba<br><span style="font-size:10px;color:var(--text-muted)">Presenter</span>
@@ -202,6 +218,7 @@ WEB_UI_HTML = """<!DOCTYPE html>
       <div class="control-label">Hasil Audio</div>
       <audio id="audioPlayer" class="audio-player" controls autoplay></audio>
       <div class="metrics-row">
+        <div class="metric-item"><span>Tier:</span><strong id="metricTier">-</strong></div>
         <div class="metric-item"><span>Latensi CPU:</span><strong id="metricLatency">-</strong></div>
         <div class="metric-item"><span>Durasi Audio:</span><strong id="metricDuration">-</strong></div>
         <div class="metric-item"><span>Real-Time Factor:</span><strong id="metricRTF">-</strong></div>
@@ -211,9 +228,30 @@ WEB_UI_HTML = """<!DOCTYPE html>
   </div>
 
   <script>
+    let currentTier = 'standard';
     let currentSpeaker = 'arbo';
     let currentLang = 'id';
     let currentSpeed = 0.85;
+
+    function setTier(tier) {
+      currentTier = tier;
+      const isStd = tier === 'standard';
+      const stdEl = document.getElementById('tierStandard');
+      const smlEl = document.getElementById('tierSmall');
+      stdEl.classList.toggle('active', isStd);
+      smlEl.classList.toggle('active', !isStd);
+      if (isStd) {
+        stdEl.style.borderColor = 'var(--accent)';
+        stdEl.style.background = 'rgba(88, 166, 255, 0.15)';
+        smlEl.style.borderColor = 'var(--border)';
+        smlEl.style.background = 'var(--chip-bg)';
+      } else {
+        smlEl.style.borderColor = '#3fb950';
+        smlEl.style.background = 'rgba(46, 160, 67, 0.15)';
+        stdEl.style.borderColor = 'var(--border)';
+        stdEl.style.background = 'var(--chip-bg)';
+      }
+    }
 
     function setPreset(text, lang = 'id') {
       document.getElementById('textInput').value = text;
@@ -262,12 +300,14 @@ WEB_UI_HTML = """<!DOCTYPE html>
             voice: currentSpeaker,
             lang: currentLang,
             speed: currentSpeed,
+            tier: currentTier,
             response_format: 'wav'
           })
         });
 
         if (!res.ok) throw new Error('Sintesis gagal');
 
+        const tierHeader = res.headers.get('X-Tier');
         const latencyHeader = res.headers.get('X-Latency-Ms');
         const durHeader = res.headers.get('X-Duration-Sec');
         const rtfHeader = res.headers.get('X-RTF');
@@ -278,6 +318,7 @@ WEB_UI_HTML = """<!DOCTYPE html>
         player.src = url;
 
         document.getElementById('outputSection').style.display = 'block';
+        document.getElementById('metricTier').textContent = tierHeader ? tierHeader : currentTier.toUpperCase();
         document.getElementById('metricLatency').textContent = latencyHeader ? `${parseFloat(latencyHeader).toFixed(0)} ms` : `${(performance.now() - t0).toFixed(0)} ms`;
         document.getElementById('metricDuration').textContent = durHeader ? `${parseFloat(durHeader).toFixed(2)} s` : '-';
         document.getElementById('metricRTF').textContent = rtfHeader ? `${parseFloat(rtfHeader).toFixed(3)}x` : '-';
@@ -308,7 +349,7 @@ def health() -> dict[str, str]:
 
 @app.get("/v1/speakers")
 def list_speakers() -> dict[str, Any]:
-    engine = get_engine()
+    engine = get_engine("standard")
     return engine.profiles.get("speakers", {})
 
 
@@ -324,7 +365,7 @@ def list_tiers() -> dict[str, Any]:
 @app.post("/v1/audio/speech")
 def create_speech(req: OpenAISpeechRequest) -> Response:
     """OpenAI-compatible Text-to-Speech endpoint."""
-    engine = get_engine()
+    engine = get_engine(req.tier)
     t0 = time.perf_counter()
 
     audio, synth_latency_ms = engine.synthesize(
@@ -344,6 +385,7 @@ def create_speech(req: OpenAISpeechRequest) -> Response:
     headers = {
         "Content-Type": "audio/wav",
         "Content-Disposition": f'inline; filename="{req.voice}_speech.wav"',
+        "X-Tier": req.tier.upper(),
         "X-Latency-Ms": f"{total_time_ms:.1f}",
         "X-Duration-Sec": f"{duration_sec:.2f}",
         "X-RTF": f"{rtf:.4f}",
@@ -360,13 +402,17 @@ def main() -> None:
 
     args = parser.parse_args()
 
-    # Preload engine
-    global _TTS_ENGINE
-    _TTS_ENGINE = ArboTTS(model_path=args.model, config_path=args.config)
+    # Preload default standard engine and small engine if available
+    _ENGINES["standard"] = ArboTTS(model_path=args.model, config_path=args.config, tier="standard")
+    try:
+        _ENGINES["small"] = ArboTTS(tier="small")
+    except Exception as e:
+        print(f"[Warning] Small tier engine preload skipped: {e}")
 
     print(f"\n=======================================================")
     print(f"🎙️  ArboTTS Studio (v2.0) running at: http://{args.host}:{args.port}")
     print(f"📡 OpenAI-compatible endpoint: POST http://{args.host}:{args.port}/v1/audio/speech")
+    print(f"   Tiers available: Standard (60 MB), Small (31 MB)")
     print(f"=======================================================\n")
     uvicorn.run(app, host=args.host, port=args.port)
 

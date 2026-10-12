@@ -17,17 +17,34 @@ Didesain untuk kebutuhan produksi yang efisien, hemat daya, dan dapat berjalan m
 
 ## 🎭 Karakter Profil Suara Studio
 
-ArboTTS v2.0 menyediakan 7 persona suara yang dikalibrasi untuk berbagai kebutuhan penyiaran dan interaksi:
+ArboTTS v2.0 menyediakan 7 persona suara yang dikalibrasi ke dalam dua kelompok: **Persona Utama Pria** (sangat direkomendasikan untuk resonansi akustik dan ritme paling alami) serta **Persona Tambahan Wanita**:
 
+### ⭐ Persona Utama Pria (Direkomendasikan)
 | Persona | Gender | Karakter & Intonasi | Peruntukan Terbaik | Opsi CLI |
 | :--- | :--- | :--- | :--- | :--- |
 | **Arbo** | 👨 Pria | **Penyiar Berita Formal**<br>Berwibawa, konsonan letup tegas, resonansi dalam | Berita formal, pengumuman resmi, pidato | `-sp arbo` *(default)* |
 | **Bimo** | 👨 Pria | **Baritone Berat & Berwibawa**<br>Resonansi dada tebal, berbobot, wibawa matang | Dokumenter, profil perusahaan, voiceover trailer | `-sp bimo` |
 | **Dimas** | 👨 Pria | **Pria Muda Kasual & Energik**<br>Tempo dinamis, ramah, artikulasi konsonan letup jernih | Asisten pintar, podcast, video explainer modern | `-sp dimas` |
 | **Danu** | 👨 Pria | **Narator Tenang & Santun**<br>Tekstur hangat, tempo lembut, intonasi menenangkan | Audiobook, meditasi, dongeng, pemandu museum | `-sp danu` |
+
+### 👩 Persona Tambahan Wanita
+| Persona | Gender | Karakter & Intonasi | Peruntukan Terbaik | Opsi CLI |
+| :--- | :--- | :--- | :--- | :--- |
 | **Arba** | 👩 Wanita | **Presenter Berita Profesional**<br>Artikulasi jernih, santun, lugas dengan kehangatan mid-range | Siaran berita, video korporat, laporan jurnalis | `-sp arba` |
 | **Sita** | 👩 Wanita | **Asisten Interaktif Cerdas**<br>Ceria, bersahabat, tempo percakapan interaktif | Asisten virtual, CS bot, panduan aplikasi | `-sp sita` |
 | **Maya** | 👩 Wanita | **Narator Tenang & Storyteller**<br>Lembut, santai, tekstur hangat dengan ritme halus | Audiobook, mediasi, dongeng, dokumenter | `-sp maya` |
+
+---
+
+## ⚡ Tingkatan Arsitektur Model (Model Tiers)
+
+ArboTTS menyediakan tingkatan model untuk menyeimbangkan ketepatan akustik dengan ukuran memori dan latensi komputasi:
+
+| Tier | Berkas Model | Ukuran (ONNX) | Parameter | Konfigurasi Arsitektur | Rata-rata Latensi CPU / RTF | Target Penggunaan |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| 🚀 **Standard** *(Default)* | `arbotts_v1.onnx` | **60.57 MB** | **23.66 M** | Hidden 192, Filter 768, 6 Layers, ResBlock1 | ~100–140 ms (0.025x RTF) | Produksi studio, desktop, server |
+| ⚡ **Small** | `arbotts_small.onnx` | **31.29 MB** | **8.39 M** | Hidden 128, Filter 512, 4 Layers, ResBlock2 | ~45–65 ms (0.012x RTF) | Chatbot interaktif, aplikasi edge, server hemat RAM |
+| 🪶 **Tiny** *(Roadmap)* | `arbotts_tiny.onnx` | *~12.8 MB* | *~3.65 M* | Hidden 96, Filter 256, 3 Layers, ResBlock2 | ~20–30 ms (0.006x RTF) | Raspberry Pi, IoT, perangkat wearable & mobile |
 
 ---
 
@@ -102,21 +119,33 @@ Sintesis suara alami dalam Bahasa Indonesia atau Bahasa Inggris hanya dengan beb
 ```python
 from arbotts import ArboTTS
 
-# Inisialisasi synthesizer (otomatis download model jika belum ada)
-tts = ArboTTS()
+# Inisialisasi synthesizer (Tingkat Standard default, atau opsi tier="small")
+tts_standard = ArboTTS(tier="standard")  # 60.57 MB - Full Fidelity Studio
+tts_small = ArboTTS(tier="small")        # 31.29 MB - Distilled Sangat Cepat
 
-# 🇮🇩 Sintesis Bahasa Indonesia
-tts.speak(
+# 🇮🇩 Sintesis Bahasa Indonesia dengan persona utama
+tts_standard.speak(
     text="Halo, selamat pagi, Indonesia. Awali hari Seninmu dengan penuh ceria!",
     output_file="halo_id.wav",
+    speaker="arbo",
+    lang="id",
+    speed=0.85,
+)
+
+# ⚡ Sintesis cepat dengan Small tier
+tts_small.speak(
+    text="Sistem siap melayani permintaan pengguna dengan latensi ultra rendah.",
+    output_file="jawaban_cepat.wav",
+    speaker="arbo",
     lang="id",
     speed=0.85,
 )
 
 # 🇬🇧 Sintesis Bahasa Inggris
-tts.speak(
+tts_standard.speak(
     text="Good morning, and welcome to ArboTTS. Have a wonderful and productive day!",
     output_file="welcome_en.wav",
+    speaker="arbo",
     lang="en",
     speed=0.85,
 )
@@ -126,14 +155,17 @@ tts.speak(
 Setelah terinstal, perintah `arbotts` dapat langsung dipanggil dari terminal / CMD:
 
 ```bash
-# 🇮🇩 Sintesis Bahasa Indonesia (default)
+# 🇮🇩 Sintesis Bahasa Indonesia dengan Standard tier (default)
 arbotts "Halo, selamat datang di ArboTTS!" -o halo_id.wav -l id
+
+# ⚡ Sintesis cepat dengan Small tier
+arbotts "Proses selesai dalam waktu sekejap." --tier small -o small_out.wav
 
 # 🇬🇧 Sintesis Bahasa Inggris
 arbotts "Good morning, welcome to ArboTTS!" -o welcome_en.wav -l en
 
-# Menyetel tempo bicara dan speaker (misal arba untuk presenter wanita)
-arbotts "Harga beras medium di pasar tradisional stabil hari ini." -sp arba -s 0.85 -o berita.wav
+# Menyetel tempo bicara dan speaker persona (misal bimo untuk suara baritone)
+arbotts "Harga beras medium di pasar tradisional stabil hari ini." -sp bimo -s 0.85 -o berita.wav
 ```
 
 ### 🌐 Web UI Studio & REST API Kompatibel OpenAI
@@ -143,7 +175,7 @@ Jalankan studio antarmuka web lokal hanya dengan satu perintah:
 arbotts serve --port 8000
 ```
 
-Buka `http://localhost:8000` di browser untuk mengetik kalimat, memilih profil suara (**Arbo**, **Bimo**, **Dimas**, **Danu**, **Arba**, **Sita**, **Maya**), menyetel tempo, dan mendengarkan hasil audio langsung.
+Buka `http://localhost:8000` di browser untuk mengetik kalimat, beralih tier model (**Standard 60MB** vs **Small 31MB**), memilih profil suara (**Arbo**, **Bimo**, **Dimas**, **Danu**, **Arba**, **Sita**, **Maya**), menyetel tempo, dan mendengarkan hasil audio langsung.
 
 #### Kompatibilitas Endpoint OpenAI TTS
 ArboTTS menyediakan endpoint standar `/v1/audio/speech` yang kompatibel dengan protokol OpenAI Text-to-Speech:
@@ -153,7 +185,8 @@ curl http://localhost:8000/v1/audio/speech \
   -H "Content-Type: application/json" \
   -d '{
     "input": "Halo, selamat pagi, Indonesia!",
-    "voice": "arba",
+    "voice": "arbo",
+    "tier": "small",
     "speed": 0.85
   }' \
   --output pidato.wav

@@ -17,17 +17,34 @@ Engineered for resource-constrained environments, ArboTTS runs smoothly on stand
 
 ## 🎭 Studio Voice Personas
 
-ArboTTS v2.0 includes 7 professionally calibrated voice personas across male and female vocal ranges:
+ArboTTS v2.0 includes 7 professionally calibrated voice personas, categorized into **Primary Male Personas** (recommended for native acoustic resonance and cadence) and **Additional Female Personas**:
 
+### ⭐ Primary Male Personas (Recommended)
 | Persona | Gender | Voice Role & Tone | Best Used For | CLI Option |
 | :--- | :--- | :--- | :--- | :--- |
 | **Arbo** | 👨 Male | **Formal Broadcast Announcer**<br>Authoritative, crisp plosive consonants, deep resonance | News anchors, official announcements, formal keynotes | `-sp arbo` *(default)* |
 | **Bimo** | 👨 Male | **Deep Baritone & Authority**<br>Rich chest resonance, heavy weight, mature timbre | Documentaries, corporate voiceovers, trailers | `-sp bimo` |
 | **Dimas** | 👨 Male | **Young & Energetic Casual**<br>Friendly conversational tempo, crisp consonant articulation | Virtual assistants, podcasts, modern explainers | `-sp dimas` |
 | **Danu** | 👨 Male | **Calm Storyteller & Narrator**<br>Velvety warmth, gentle pacing, polite cadence | Audiobooks, meditation, bedtime stories, documentaries | `-sp danu` |
+
+### 👩 Additional Female Personas
+| Persona | Gender | Voice Role & Tone | Best Used For | CLI Option |
+| :--- | :--- | :--- | :--- | :--- |
 | **Arba** | 👩 Female | **Professional News Presenter**<br>Articulate, clear, polite, warm mid-range articulation | News broadcasts, corporate explainers, reporting | `-sp arba` |
 | **Sita** | 👩 Female | **Smart Interactive Assistant**<br>Bright, cheerful, engaging conversational tempo | Virtual assistants, customer care, interactive bots | `-sp sita` |
 | **Maya** | 👩 Female | **Calm Storyteller & Narration**<br>Gentle, relaxed, velvety warmth with soft cadence | Audiobooks, meditation, bedtime stories, documentaries | `-sp maya` |
+
+---
+
+## ⚡ Architectural Tiers (Model Compression)
+
+ArboTTS provides tiered models to balance acoustic fidelity against memory footprint and compute latency:
+
+| Tier | Model File | Size (ONNX) | Parameters | Architecture Config | Mean CPU Latency / RTF | Target Platform |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| 🚀 **Standard** *(Default)* | `arbotts_v1.onnx` | **60.57 MB** | **23.66 M** | Hidden 192, Filter 768, 6 Layers, ResBlock1 | ~100–140 ms (0.025x RTF) | Studio production, desktop, server |
+| ⚡ **Small** | `arbotts_small.onnx` | **31.29 MB** | **8.39 M** | Hidden 128, Filter 512, 4 Layers, ResBlock2 | ~45–65 ms (0.012x RTF) | Fast chatbots, edge apps, lightweight servers |
+| 🪶 **Tiny** *(Roadmap)* | `arbotts_tiny.onnx` | *~12.8 MB* | *~3.65 M* | Hidden 96, Filter 256, 3 Layers, ResBlock2 | ~20–30 ms (0.006x RTF) | Raspberry Pi, IoT, wearables, mobile devices |
 
 ---
 
@@ -102,21 +119,33 @@ Synthesize natural speech in Indonesian or English with just a few lines:
 ```python
 from arbotts import ArboTTS
 
-# Initialize synthesizer (auto-downloads model on first run)
-tts = ArboTTS()
+# Initialize synthesizer (Standard tier by default, or specify tier="small")
+tts_standard = ArboTTS(tier="standard")  # 60.57 MB - Full Fidelity
+tts_small = ArboTTS(tier="small")        # 31.29 MB - Ultra-Fast Distilled
 
-# 🇮🇩 Indonesian synthesis
-tts.speak(
+# 🇮🇩 Indonesian synthesis with primary persona
+tts_standard.speak(
     text="Halo, selamat pagi, Indonesia. Awali hari Seninmu dengan penuh ceria!",
     output_file="halo_id.wav",
+    speaker="arbo",
+    lang="id",
+    speed=0.85,
+)
+
+# ⚡ Small tier fast synthesis
+tts_small.speak(
+    text="Sistem siap melayani permintaan pengguna dengan latensi ultra rendah.",
+    output_file="fast_reply.wav",
+    speaker="arbo",
     lang="id",
     speed=0.85,
 )
 
 # 🇬🇧 English synthesis
-tts.speak(
+tts_standard.speak(
     text="Good morning, and welcome to ArboTTS. Have a wonderful and productive day!",
     output_file="welcome_en.wav",
+    speaker="arbo",
     lang="en",
     speed=0.85,
 )
@@ -126,14 +155,17 @@ tts.speak(
 Once installed, the `arbotts` command is accessible directly from your terminal:
 
 ```bash
-# 🇮🇩 Indonesian synthesis (default)
+# 🇮🇩 Indonesian synthesis with Standard tier (default)
 arbotts "Halo, selamat datang di ArboTTS!" -o halo_id.wav -l id
+
+# ⚡ Small tier fast synthesis
+arbotts "Proses selesai dalam waktu sekejap." --tier small -o small_out.wav
 
 # 🇬🇧 English synthesis
 arbotts "Good morning, welcome to ArboTTS!" -o welcome_en.wav -l en
 
-# Adjust tempo and speaker (e.g. arba for female presenter)
-arbotts "Harga beras medium di pasar tradisional stabil hari ini." -sp arba -s 0.85 -o news.wav
+# Adjust tempo and speaker persona (e.g. bimo for baritone voice)
+arbotts "Harga beras medium di pasar tradisional stabil hari ini." -sp bimo -s 0.85 -o news.wav
 ```
 
 ### 🌐 Web UI Studio & OpenAI-Compatible REST API
@@ -143,7 +175,7 @@ Launch the interactive browser studio with a single command:
 arbotts serve --port 8000
 ```
 
-Open `http://localhost:8000` to synthesize audio, choose speaker personas (**Arbo**, **Bimo**, **Dimas**, **Danu**, **Arba**, **Sita**, **Maya**), adjust tempo, and audition speech directly in your browser.
+Open `http://localhost:8000` to synthesize audio, toggle model tiers (**Standard 60MB** vs **Small 31MB**), choose speaker personas (**Arbo**, **Bimo**, **Dimas**, **Danu**, **Arba**, **Sita**, **Maya**), adjust tempo, and audition speech directly in your browser.
 
 #### OpenAI TTS Client Compatibility
 ArboTTS includes a drop-in `/v1/audio/speech` endpoint compatible with the OpenAI Text-to-Speech API:
@@ -153,7 +185,8 @@ curl http://localhost:8000/v1/audio/speech \
   -H "Content-Type: application/json" \
   -d '{
     "input": "Halo, selamat pagi, Indonesia!",
-    "voice": "arba",
+    "voice": "arbo",
+    "tier": "small",
     "speed": 0.85
   }' \
   --output speech.wav

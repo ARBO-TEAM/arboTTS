@@ -35,4 +35,4 @@ dataset/pilot_wavs/
 *.onnx
 
 # Recordings
-recordings/raw/
+recordings/
