@@ -21,16 +21,12 @@ torch.set_num_threads(8)
 from kittenml import KittenTTS
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-DEFAULT_REF_AUDIO = Path("D:/kerjaan/belajar/tts/arboTTS/recordings/user_ref.wav")
-DEFAULT_OUT_DIR = Path("D:/kerjaan/belajar/tts/arboTTS/audition_clone")
+DEFAULT_REF_AUDIO = REPO_ROOT / "recordings" / "reference.wav"
+DEFAULT_OUT_DIR = REPO_ROOT / "audition_clone"
 
 DEFAULT_REF_TEXT = (
-    "Halo, ini contoh suara untuk merekam suara saya sendiri. Saya membaca beberapa "
-    "kalimat biasa dengan tempo yang santai. Kemarin pagi saya bersepeda ke pasar, "
-    "membeli beras dan beberapa ekor bebek untuk dimasak bersama keluarga. Apakah "
-    "suara ini terdengar jelas? Oh tidak, ternyata langit mendung dan sebentar lagi "
-    "hujan turun. Semoga komputer nanti bisa berbicara seperti suara saya sendiri, "
-    "tidak kaku dan tidak terburu-buru."
+    "Halo, ini contoh rekaman suara referensi untuk kloning suara. Saya membaca beberapa "
+    "kalimat biasa dengan tempo yang santai dan intonasi yang wajar."
 )
 
 AUDITION_TESTS = {

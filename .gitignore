@@ -13,8 +13,12 @@ dist/
 *.wav
 *.mp3
 *.flac
+*.m4a
+*.aac
+*.ogg
 !examples/audio/*.wav
 audition_samples*/
+audition_clone*/
 benchmark_samples*/
 samples_eval/
 
