@@ -5,7 +5,30 @@ __pycache__/
 .venv/
 env/
 venv/
-dataset/wavs/
-checkpoints/
-dist/*.onnx
+build/
+dist/
+*.egg-info/
+
+# Audio waveforms & samples
+*.wav
+*.mp3
+*.flac
+audition_samples*/
+benchmark_samples*/
+samples_eval/
+
+# Training checkpoints & logs
+checkpoints*/
 *.log
+*.pth
+*.ckpt
+training_err.log
+training.log
+empirical_durations.json
+
+# Raw dataset audio (text metadata train_pilot_raw.txt is kept)
+dataset/wavs/
+dataset/pilot_wavs/
+
+# Model binaries (released via GitHub Releases v1.0.0)
+*.onnx

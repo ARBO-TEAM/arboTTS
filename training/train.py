@@ -82,14 +82,29 @@ def train_pilot(
     checkpoint_dir = REPO_ROOT / "checkpoints"
     checkpoint_dir.mkdir(parents=True, exist_ok=True)
 
+    # Check for existing checkpoints to auto-resume
+    checkpoints = list(checkpoint_dir.glob("G_*.pth"))
     global_step = 0
+    if checkpoints:
+        steps = [int(p.stem.split("_")[1]) for p in checkpoints if p.stem.split("_")[1].isdigit()]
+        if steps:
+            latest_step = max(steps)
+            if latest_step < max_steps:
+                latest_g = checkpoint_dir / f"G_{latest_step}.pth"
+                latest_d = checkpoint_dir / f"D_{latest_step}.pth"
+                if latest_g.exists() and latest_d.exists():
+                    print(f"Resuming from checkpoint step {latest_step}...", flush=True)
+                    net_g.load_state_dict(torch.load(latest_g, map_location=device))
+                    net_d.load_state_dict(torch.load(latest_d, map_location=device))
+                    global_step = latest_step
+
     start_time = time.time()
     epoch = 0
 
     net_g.train()
     net_d.train()
 
-    print(f"Training loop initialized. Target: {max_steps} steps. Checkpoints dir: {checkpoint_dir}")
+    print(f"Training loop initialized. Starting at step: {global_step}, Target: {max_steps} steps.", flush=True)
 
     while global_step < max_steps:
         epoch += 1
@@ -142,9 +157,10 @@ def train_pilot(
                 loss_gen, _ = generator_loss(y_d_gs)
                 loss_fm = feature_loss(fmap_rs, fmap_gs)
 
-                # Mel loss
+            # Mel loss in float32 for clean FFT
+            with autocast("cuda", enabled=False):
                 y_hat_mel = mel_spectrogram_torch(
-                    y_hat.squeeze(1),
+                    y_hat.squeeze(1).float(),
                     data_cfg["filter_length"],
                     data_cfg["n_mel_channels"],
                     data_cfg["sampling_rate"],
@@ -153,11 +169,8 @@ def train_pilot(
                     data_cfg["mel_fmin"],
                     data_cfg["mel_fmax"],
                 )
-                loss_mel = torch.nn.functional.l1_loss(y_mel, y_hat_mel) * train_cfg["c_mel"]
-
-                # KL divergence loss
-                loss_kl = kl_loss(z_p, logs_q, m_p, logs_p, y_mask) * train_cfg["c_kl"]
-
+                loss_mel = torch.nn.functional.l1_loss(y_mel.float(), y_hat_mel) * train_cfg["c_mel"]
+                loss_kl = kl_loss(z_p.float(), logs_q.float(), m_p.float(), logs_p.float(), y_mask.float()) * train_cfg["c_kl"]
                 loss_tot = loss_gen + loss_fm + loss_mel + loss_kl
 
             scaler.scale(loss_tot).backward()
@@ -169,29 +182,46 @@ def train_pilot(
             # Logging
             if global_step % train_cfg["log_interval"] == 0:
                 elapsed = time.time() - start_time
-                steps_per_sec = global_step / elapsed
+                steps_per_sec = (global_step - (latest_step if 'latest_step' in locals() else 0)) / max(elapsed, 1e-5)
                 print(
                     f"[Step {global_step:4d}/{max_steps}] | "
                     f"Loss Gen: {loss_gen.item():.4f} | "
                     f"Mel: {loss_mel.item():.4f} | "
                     f"FM: {loss_fm.item():.4f} | "
                     f"Disc: {loss_disc.item():.4f} | "
-                    f"Speed: {steps_per_sec:.2f} steps/s"
+                    f"Speed: {steps_per_sec:.2f} steps/s",
+                    flush=True,
                 )
 
-            # Save Checkpoint
+            # Save Checkpoint & Prune old checkpoints
             if global_step % train_cfg["eval_interval"] == 0 or global_step == max_steps:
                 ckpt_path_g = checkpoint_dir / f"G_{global_step}.pth"
                 ckpt_path_d = checkpoint_dir / f"D_{global_step}.pth"
                 torch.save(net_g.state_dict(), ckpt_path_g)
                 torch.save(net_d.state_dict(), ckpt_path_d)
-                print(f"--> Saved checkpoint at step {global_step}: {ckpt_path_g.name}")
+                print(f"--> Saved checkpoint at step {global_step}: {ckpt_path_g.name}", flush=True)
+
+                # Prune older checkpoints to prevent disk exhaustion
+                all_g = sorted(
+                    [p for p in checkpoint_dir.glob("G_*.pth") if p.stem.split("_")[1].isdigit()],
+                    key=lambda p: int(p.stem.split("_")[1]),
+                )
+                keep_steps = {1500, 5000, 10000, 15000, 20000, max_steps}
+                if len(all_g) > 2:
+                    for old_p in all_g[:-2]:
+                        s = int(old_p.stem.split("_")[1])
+                        if s not in keep_steps:
+                            old_d = checkpoint_dir / f"D_{s}.pth"
+                            old_p.unlink(missing_ok=True)
+                            old_d.unlink(missing_ok=True)
+
+                torch.cuda.empty_cache()
 
             if global_step >= max_steps:
                 break
 
     total_time = (time.time() - start_time) / 60
-    print(f"=== Pilot Training Finished! Total time: {total_time:.2f} minutes ===")
+    print(f"=== Pilot Training Finished! Total time: {total_time:.2f} minutes ===", flush=True)
 
 
 if __name__ == "__main__":
