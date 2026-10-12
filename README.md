@@ -1,4 +1,4 @@
-# ArboTTS (v1.0) 🎙️🇮🇩🇬🇧
+# ArboTTS (v2.0) 🎙️🇮🇩🇬🇧
 
 **English** | [Bahasa Indonesia](README-ID.md)
 
@@ -9,7 +9,22 @@
 
 **ArboTTS** is an ultra-lightweight, production-grade bilingual (**Indonesian & English**) Text-to-Speech (TTS) engine powered by the **VITS (Variational Inference with adversarial learning for end-to-end Text-to-Speech)** architecture, optimized for standalone CPU inference using **ONNX Runtime**.
 
+With version 2.0, ArboTTS brings **High-Definition Multi-Persona Studio Synthesis** (featuring 4 distinct voices: Arbo, Arba, Sita, and Maya), an interactive browser-based **Web UI Studio**, and an **OpenAI-compatible REST API**.
+
 Engineered for resource-constrained environments, ArboTTS runs smoothly on standard laptops, mini PCs, edge devices, and server instances without requiring a GPU.
+
+---
+
+## 🎭 Studio Voice Personas
+
+ArboTTS v2.0 includes 4 professionally calibrated voice personas for different broadcasting and interactive contexts:
+
+| Persona | Gender | Voice Role & Tone | Best Used For | CLI Option |
+| :--- | :--- | :--- | :--- | :--- |
+| **Arbo** | 👨 Male | **Formal Broadcast Announcer**<br>Authoritative, crisp plosive consonants, deep resonance | News anchors, official announcements, formal keynotes | `-sp arbo` *(default)* |
+| **Arba** | 👩 Female | **Professional News Presenter**<br>Articulate, clear, polite, warm mid-range articulation | News broadcasts, corporate explainers, reporting | `-sp arba` |
+| **Sita** | 👩 Female | **Smart Interactive Assistant**<br>Bright, cheerful, engaging conversational tempo | Virtual assistants, customer care, interactive bots | `-sp sita` |
+| **Maya** | 👩 Female | **Calm Storyteller & Narration**<br>Gentle, relaxed, velvety warmth with soft cadence | Audiobooks, meditation, bedtime stories, documentaries | `-sp maya` |
 
 ---
 
@@ -19,7 +34,7 @@ You can listen to generated speech samples directly in your browser:
 
 | Language | Context | Text Transcripts | Audio Player & Links |
 | :--- | :--- | :--- | :--- |
-| 🇮🇩 **ID** | **Morning Greeting (Broadcast Announcer)** | *"Halo, selamat pagi, Indonesia. Awali hari Senin-mu dengan penuh ceria!"* | <audio controls src="https://raw.githubusercontent.com/ARBO-TEAM/arboTTS/main/examples/audio/id_halo_pagi.wav"></audio><br>[🔊 Play WAV](examples/audio/id_halo_pagi.wav) |
+| 🇮🇩 **ID** | **Morning Greeting (Broadcast Announcer)** | *"Halo, selamat pagi, Indonesia. Awali hari Seninmu dengan penuh ceria!"* | <audio controls src="https://raw.githubusercontent.com/ARBO-TEAM/arboTTS/main/examples/audio/id_halo_pagi.wav"></audio><br>[🔊 Play WAV](examples/audio/id_halo_pagi.wav) |
 | 🇮🇩 **ID** | **Formal News Broadcast** | *"Harga beras medium di pasar tradisional mencapai empat belas ribu rupiah per kilogram hari ini."* | <audio controls src="https://raw.githubusercontent.com/ARBO-TEAM/arboTTS/main/examples/audio/id_berita_pasar.wav"></audio><br>[🔊 Play WAV](examples/audio/id_berita_pasar.wav) |
 | 🇬🇧 **EN** | **English Greeting** | *"Good morning, and welcome to ArboTTS. Have a wonderful and productive day!"* | <audio controls src="https://raw.githubusercontent.com/ARBO-TEAM/arboTTS/main/examples/audio/en_good_morning.wav"></audio><br>[🔊 Play WAV](examples/audio/en_good_morning.wav) |
 | 🇬🇧 **EN** | **Technical Explainer** | *"ArboTTS is an ultra lightweight text to speech model running entirely on CPU."* | <audio controls src="https://raw.githubusercontent.com/ARBO-TEAM/arboTTS/main/examples/audio/en_lightweight.wav"></audio><br>[🔊 Play WAV](examples/audio/en_lightweight.wav) |
@@ -28,6 +43,8 @@ You can listen to generated speech samples directly in your browser:
 
 ## ✨ Key Features
 
+- 🎭 **Studio Multi-Persona Support (v2.0)**: Switch seamlessly between 4 calibrated personas (**Arbo**, **Arba**, **Sita**, **Maya**) covering formal broadcast, interactive assistant, and warm narration.
+- 🌐 **Interactive Web UI Studio & REST API**: Full browser studio at `http://localhost:8000` and drop-in OpenAI-compatible `/v1/audio/speech` streaming endpoint.
 - ⚡ **Blazing Fast on CPU (RTF 0.025x)**: Generates 5.0 seconds of speech in just **~120–140 ms** on consumer laptop CPUs (>35x faster than real-time).
 - 🪶 **Ultra-Compact Model (~60 MB)**: Total parameter count of only **23.66 million** (standalone ONNX file size **60.57 MB**). Extremely low memory footprint (< 150 MB RAM).
 - 🇮🇩🇬🇧 **Bilingual Support (ID + EN)**: Native Indonesian announcer cadence with clear English multilingual synthesis.
@@ -87,7 +104,7 @@ tts = ArboTTS()
 
 # 🇮🇩 Indonesian synthesis
 tts.speak(
-    text="Halo, selamat pagi, Indonesia. Awali hari Senin-mu dengan penuh ceria!",
+    text="Halo, selamat pagi, Indonesia. Awali hari Seninmu dengan penuh ceria!",
     output_file="halo_id.wav",
     lang="id",
     speed=0.85,
@@ -158,9 +175,13 @@ curl http://localhost:8000/v1/audio/speech \
 arboTTS/
 ├── arbotts/                # Core Python package
 │   ├── downloader.py       # GitHub Releases automatic weight downloader
-│   ├── synthesizer.py      # Standalone ONNX Runtime CPU engine
+│   ├── synthesizer.py      # High-definition studio & standalone ONNX engine
+│   ├── morpher.py          # Acoustic DSP persona transformation & recipes
+│   ├── server.py           # Web UI Studio & OpenAI-compatible REST API
 │   ├── cli.py              # CLI command runner ('arbotts')
 │   └── frontend/           # Bilingual phoneme mapping & normalizer
+├── configs/
+│   └── speakers.json       # Speaker profiles & calibrated DSP recipes
 ├── examples/               # Example scripts & showcase
 │   ├── audio/              # Pre-generated sample WAV files for demo
 │   └── quickstart.py       # End-to-end bilingual synthesis demo
@@ -184,7 +205,7 @@ arboTTS/
 - [x] v1.0: Pre-generated Audio Showcase for instant evaluation.
 - [x] v1.1: Integrated lexical e-pepet / e-taling dictionary (97.3% pronunciation accuracy).
 - [x] v1.2: Standalone Local Web UI Studio & REST API (FastAPI) runner.
-- [ ] v2.0: Multi-Speaker Architecture (Male & Female broadcast announcers in a single model file).
+- [x] v2.0: High-Definition Multi-Speaker Studio Architecture (Arbo, Arba, Sita, Maya personas + Web UI Studio).
 
 ---
 

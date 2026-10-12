@@ -125,14 +125,22 @@ WEB_UI_HTML = """<!DOCTYPE html>
       </div>
     </header>
 
-    <div class="presets">
-      <button class="preset-btn" onclick="setPreset('Halo, selamat pagi, Indonesia. Awali hari Senin-mu dengan penuh ceria!')">🌅 Sapaan Pagi</button>
-      <button class="preset-btn" onclick="setPreset('Harga beras medium di pasar tradisional mencapai empat belas ribu rupiah per kilogram hari ini.')">🌾 Berita Pasar</button>
-      <button class="preset-btn" onclick="setPreset('Ibu membeli sate ayam dan tempe bacem di tepi jalan sore hari.')">🦆 Uji Pepet & Taling</button>
+    <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 6px; font-weight: 600;">CONTOH KALIMAT (PRESETS)</div>
+    <div class="presets" style="margin-bottom: 6px;">
+      <span style="font-size: 11px; color: var(--accent); align-self: center; font-weight: 600;">🇮🇩 ID:</span>
+      <button class="preset-btn" onclick="setPreset('Halo, selamat pagi, Indonesia. Awali hari Seninmu dengan penuh ceria!', 'id')">🌅 Sapaan Pagi</button>
+      <button class="preset-btn" onclick="setPreset('Harga beras medium di pasar tradisional mencapai empat belas ribu rupiah per kilogram hari ini.', 'id')">🌾 Berita Pasar</button>
+      <button class="preset-btn" onclick="setPreset('Ibu membeli sate ayam dan tempe bacem di tepi jalan sore hari.', 'id')">🦆 Uji Pepet & Taling</button>
+    </div>
+    <div class="presets" style="margin-bottom: 14px;">
+      <span style="font-size: 11px; color: var(--accent); align-self: center; font-weight: 600;">🇬🇧 EN:</span>
       <button class="preset-btn" onclick="setPreset('Good morning, and welcome to ArboTTS. Have a wonderful and productive day!', 'en')">🇬🇧 English Welcome</button>
+      <button class="preset-btn" onclick="setPreset('Breaking news: global tech markets showed positive momentum today following the latest report.', 'en')">🎙️ Broadcast News</button>
+      <button class="preset-btn" onclick="setPreset('Certainly! I have scheduled your team meeting for tomorrow morning at nine.', 'en')">🤖 Smart Assistant</button>
+      <button class="preset-btn" onclick="setPreset('The old oak tree stood quietly at the edge of the forest, watching generations pass by.', 'en')">📖 Calm Narration</button>
     </div>
 
-    <textarea id="textInput" placeholder="Ketik kalimat yang ingin diucapkan di sini...">Halo, selamat pagi, Indonesia. Awali hari Senin-mu dengan penuh ceria!</textarea>
+    <textarea id="textInput" placeholder="Ketik kalimat yang ingin diucapkan di sini...">Halo, selamat pagi, Indonesia. Awali hari Seninmu dengan penuh ceria!</textarea>
 
     <div class="control-grid">
       <div class="control-card">

@@ -1,4 +1,4 @@
-# ArboTTS (v1.0) 🎙️🇮🇩🇬🇧
+# ArboTTS (v2.0) 🎙️🇮🇩🇬🇧
 
 [English](README.md) | **Bahasa Indonesia**
 
@@ -9,7 +9,22 @@
 
 **ArboTTS** adalah mesin Text-to-Speech (TTS) bilingual (**Bahasa Indonesia & Bahasa Inggris**) ultra-ringan berbasis arsitektur **VITS (Variational Inference with adversarial learning for end-to-end Text-to-Speech)** yang dioptimasi khusus untuk eksekusi CPU standalone berformat **ONNX Runtime**.
 
+Pada versi 2.0, ArboTTS menghadirkan **Sintesis Studio Multi-Persona Definisi Tinggi** (4 karakter suara: Arbo, Arba, Sita, dan Maya), antarmuka interaktif **Web UI Studio** di browser, serta endpoint **REST API kompatibel OpenAI**.
+
 Didesain untuk kebutuhan produksi yang efisien, hemat daya, dan dapat berjalan mulus di laptop standar, mini PC, maupun server tanpa GPU.
+
+---
+
+## 🎭 Karakter Profil Suara Studio
+
+ArboTTS v2.0 menyediakan 4 persona suara yang dikalibrasi untuk berbagai kebutuhan penyiaran dan interaksi:
+
+| Persona | Gender | Karakter & Intonasi | Peruntukan Terbaik | Opsi CLI |
+| :--- | :--- | :--- | :--- | :--- |
+| **Arbo** | 👨 Pria | **Penyiar Berita Formal**<br>Berwibawa, konsonan letup tegas, resonansi dalam | Berita formal, pengumuman resmi, pidato | `-sp arbo` *(default)* |
+| **Arba** | 👩 Wanita | **Presenter Berita Profesional**<br>Artikulasi jernih, santun, lugas dengan kehangatan mid-range | Siaran berita, video korporat, laporan jurnalis | `-sp arba` |
+| **Sita** | 👩 Wanita | **Asisten Interaktif Cerdas**<br>Ceria, bersahabat, tempo percakapan interaktif | Asisten virtual, CS bot, panduan aplikasi | `-sp sita` |
+| **Maya** | 👩 Wanita | **Narator Tenang & Storyteller**<br>Lembut, santai, tekstur hangat dengan ritme halus | Audiobook, mediasi, dongeng, dokumenter | `-sp maya` |
 
 ---
 
@@ -19,7 +34,7 @@ Anda dapat langsung mendengarkan contoh audio hasil sintesis di bawah ini:
 
 | Bahasa | Konteks | Teks Kalimat | Pemutar Audio & Tautan |
 | :--- | :--- | :--- | :--- |
-| 🇮🇩 **ID** | **Sapaan Pagi (Penyiar Berita)** | *"Halo, selamat pagi, Indonesia. Awali hari Senin-mu dengan penuh ceria!"* | <audio controls src="https://raw.githubusercontent.com/ARBO-TEAM/arboTTS/main/examples/audio/id_halo_pagi.wav"></audio><br>[🔊 Putar WAV](examples/audio/id_halo_pagi.wav) |
+| 🇮🇩 **ID** | **Sapaan Pagi (Penyiar Berita)** | *"Halo, selamat pagi, Indonesia. Awali hari Seninmu dengan penuh ceria!"* | <audio controls src="https://raw.githubusercontent.com/ARBO-TEAM/arboTTS/main/examples/audio/id_halo_pagi.wav"></audio><br>[🔊 Putar WAV](examples/audio/id_halo_pagi.wav) |
 | 🇮🇩 **ID** | **Berita Formal** | *"Harga beras medium di pasar tradisional mencapai empat belas ribu rupiah per kilogram hari ini."* | <audio controls src="https://raw.githubusercontent.com/ARBO-TEAM/arboTTS/main/examples/audio/id_berita_pasar.wav"></audio><br>[🔊 Putar WAV](examples/audio/id_berita_pasar.wav) |
 | 🇬🇧 **EN** | **Sapaan Bahasa Inggris** | *"Good morning, and welcome to ArboTTS. Have a wonderful and productive day!"* | <audio controls src="https://raw.githubusercontent.com/ARBO-TEAM/arboTTS/main/examples/audio/en_good_morning.wav"></audio><br>[🔊 Putar WAV](examples/audio/en_good_morning.wav) |
 | 🇬🇧 **EN** | **Penjelasan Teknis** | *"ArboTTS is an ultra lightweight text to speech model running entirely on CPU."* | <audio controls src="https://raw.githubusercontent.com/ARBO-TEAM/arboTTS/main/examples/audio/en_lightweight.wav"></audio><br>[🔊 Putar WAV](examples/audio/en_lightweight.wav) |
@@ -28,6 +43,8 @@ Anda dapat langsung mendengarkan contoh audio hasil sintesis di bawah ini:
 
 ## ✨ Fitur Utama
 
+- 🎭 **Dukungan Multi-Persona Studio (v2.0)**: Beralih instan antar 4 karakter suara terkalibrasi (**Arbo**, **Arba**, **Sita**, **Maya**) untuk berita formal, presenter, asisten interaktif, dan narasi santai.
+- 🌐 **Web UI Studio & REST API Interaktif**: Studio berbasis web lokal di `http://localhost:8000` serta endpoint streaming `/v1/audio/speech` kompatibel standar OpenAI.
 - ⚡ **Ultra-Cepat di CPU (RTF 0.025x)**: Menghasilkan 5 detik audio dalam waktu **~120-140 milidetik** di CPU laptop standar (>35x lebih cepat dari waktu nyata).
 - 🪶 **Model Ultra-Kompak (~60 MB)**: Total hanya **23.66 juta parameter** (ukuran file ONNX **60.57 MB**). Hemat penyimpanan dan memori RAM (< 150 MB).
 - 🇮🇩🇬🇧 **Dukungan Bilingual (ID + EN)**: Artikulasi fasih bahasa Indonesia berkarakter penyiar serta sintesis bahasa Inggris yang jernih.
@@ -87,7 +104,7 @@ tts = ArboTTS()
 
 # 🇮🇩 Sintesis Bahasa Indonesia
 tts.speak(
-    text="Halo, selamat pagi, Indonesia. Awali hari Senin-mu dengan penuh ceria!",
+    text="Halo, selamat pagi, Indonesia. Awali hari Seninmu dengan penuh ceria!",
     output_file="halo_id.wav",
     lang="id",
     speed=0.85,
@@ -158,9 +175,13 @@ curl http://localhost:8000/v1/audio/speech \
 arboTTS/
 ├── arbotts/                # Pustaka utama Python
 │   ├── downloader.py       # Auto-downloader bobot model dari GitHub Releases
-│   ├── synthesizer.py      # Engine inferensi ONNX Runtime CPU
+│   ├── synthesizer.py      # Engine studio definisi tinggi & ONNX Runtime CPU
+│   ├── morpher.py          # Resep transformasi akustik DSP per persona
+│   ├── server.py           # Web UI Studio & REST API kompatibel OpenAI
 │   ├── cli.py              # CLI runner (perintah 'arbotts')
 │   └── frontend/           # Pemrosesan teks dan pemetaan fonem bilingual
+├── configs/
+│   └── speakers.json       # Profil speaker & resep DSP terkalibrasi
 ├── examples/               # Skrip contoh penggunaan
 │   ├── audio/              # Sampel WAV hasil generate untuk showcase
 │   └── quickstart.py       # Contoh sintesis end-to-end bilingual
@@ -172,6 +193,7 @@ arboTTS/
 │   └── benchmark_vits_ft.py   # Suite evaluasi metrik akustik broadcast
 ├── arbotts_v1.onnx.json    # Konfigurasi fonem dan parameter inferensi
 ├── pyproject.toml          # Konfigurasi build package
+├── Makefile                # Shortcut perintah umum pengembang
 └── README.md
 ```
 
@@ -184,7 +206,7 @@ arboTTS/
 - [x] v1.0: Showcase Pemutar Audio langsung di README.
 - [x] v1.1: Integrasi kamus leksikal e-pepet / e-taling otomatis (akurasi 97.3%).
 - [x] v1.2: Antarmuka Web UI Studio lokal & REST API (FastAPI) siap pakai.
-- [ ] v2.0: Dukungan Multi-Speaker (Pilihan suara pria & wanita dalam 1 file model terpadu).
+- [x] v2.0: Arsitektur Multi-Speaker Studio Resolusi Tinggi (Karakter Arbo, Arba, Sita, Maya + Web UI Studio).
 
 ---
 

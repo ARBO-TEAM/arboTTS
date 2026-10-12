@@ -21,7 +21,7 @@ def main():
     # 2. Sentences to synthesize (Indonesian and English)
     items = [
         # Indonesian
-        ("id_halo_pagi.wav", "Halo, selamat pagi, Indonesia. Awali hari Senin-mu dengan penuh ceria!", "id"),
+        ("id_halo_pagi.wav", "Halo, selamat pagi, Indonesia. Awali hari Seninmu dengan penuh ceria!", "id"),
         ("id_berita.wav", "Harga beras medium di pasar tradisional mencapai empat belas ribu rupiah per kilogram.", "id"),
         # English
         ("en_good_morning.wav", "Good morning, and welcome to ArboTTS. Have a wonderful and productive day!", "en"),
