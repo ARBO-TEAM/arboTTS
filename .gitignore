@@ -33,3 +33,6 @@ dataset/pilot_wavs/
 
 # Model binaries (released via GitHub Releases v1.0.0)
 *.onnx
+
+# Recordings
+recordings/raw/

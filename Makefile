@@ -2,7 +2,7 @@ PYTHON ?= $(if $(wildcard .venv/bin/python),.venv/bin/python,python)
 PORT ?= 8000
 HOST ?= 0.0.0.0
 
-.PHONY: help install install-web install-all test serve demo demo-all docker-build docker-run clean
+.PHONY: help install install-web install-all test serve demo demo-all record-demo docker-build docker-run clean
 
 help:
 	@printf '%s\n' \
@@ -16,6 +16,7 @@ help:
 	  '  make test          Run test suite with pytest' \
 	  '  make demo          Run quick speech synthesis sample' \
 	  '  make demo-all      Generate audition samples for all 7 personas' \
+	  '  make record-demo   Record automated Studio Web UI demo video with audio' \
 	  '  make docker-build  Build lightweight standalone CPU Docker image' \
 	  '  make docker-run    Run Docker container on http://localhost:$(PORT)' \
 	  '  make clean         Clean build artifacts and caches'
@@ -49,6 +50,10 @@ demo-all:
 	PYTHONPATH=. $(PYTHON) -m arbotts.cli "Hai! Saya Sita, asisten cerdas yang siap membantu." -o demo_outputs/sita.wav -sp sita -s 0.90
 	PYTHONPATH=. $(PYTHON) -m arbotts.cli "Selamat malam, saya Maya, mari kita dengarkan kisah ini." -o demo_outputs/maya.wav -sp maya -s 0.80
 	@echo "All 7 persona samples generated in demo_outputs/"
+
+record-demo:
+	PYTHONPATH=. $(PYTHON) tools/record_studio_demo.py
+	@echo "Demo video created at recordings/arbotts_studio_demo.mp4"
 
 docker-build:
 	docker build -t arbotts:v2.0 -t arbotts:latest .
