@@ -1,0 +1,57 @@
+{
+  "version": "1.0",
+  "sampling_rate": 22050,
+  "speakers": {
+    "arbo": {
+      "id": 0,
+      "gender": "male",
+      "persona": "Formal Broadcast Announcer",
+      "description": "Mature, authoritative, crisp consonants and balanced resonance.",
+      "dsp_recipe": {
+        "base_voice": "id-ID-ArdiNeural",
+        "pitch_shift_semitones": -2.0,
+        "presence_boost_hz": 3500,
+        "presence_gain": 0.20,
+        "target_lufs": -20.0
+      }
+    },
+    "arba": {
+      "id": 1,
+      "gender": "female",
+      "persona": "Professional News Presenter",
+      "description": "Clear, assertive, polite, warm mid-range articulation.",
+      "dsp_recipe": {
+        "base_voice": "id-ID-GadisNeural",
+        "pitch_shift_semitones": -0.8,
+        "presence_boost_hz": 3500,
+        "presence_gain": 0.25,
+        "target_lufs": -20.0
+      }
+    },
+    "sita": {
+      "id": 2,
+      "gender": "female",
+      "persona": "Smart Interactive Assistant",
+      "description": "Bright, cheerful, engaging conversational tempo.",
+      "dsp_recipe": {
+        "base_voice": "id-ID-GadisNeural",
+        "pitch_shift_semitones": 1.2,
+        "presence_boost_hz": 4000,
+        "presence_gain": 0.25,
+        "target_lufs": -20.0
+      }
+    },
+    "maya": {
+      "id": 3,
+      "gender": "female",
+      "persona": "Calm Storyteller & Audiobook Narration",
+      "description": "Gentle, relaxed, velvety warmth with soft cadence.",
+      "dsp_recipe": {
+        "base_voice": "id-ID-GadisNeural",
+        "pitch_shift_semitones": -1.4,
+        "lowpass_warmth_hz": 5500,
+        "target_lufs": -20.0
+      }
+    }
+  }
+}
