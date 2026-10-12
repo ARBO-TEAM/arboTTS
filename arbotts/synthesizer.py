@@ -34,11 +34,13 @@ class ArboTTS:
         self,
         model_path: str | Path | None = None,
         config_path: str | Path | None = None,
+        tier: str = "standard",
         speakers_config: str | Path | None = None,
         num_threads: int = 4,
     ) -> None:
+        self.tier = tier
         if model_path is None or config_path is None:
-            m_path, c_path = get_model_path(model_dir=model_path)
+            m_path, c_path = get_model_path(model_dir=model_path, tier=tier)
         else:
             m_path = Path(model_path)
             c_path = Path(config_path)

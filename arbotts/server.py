@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import io
+import json
 import time
 from pathlib import Path
 from typing import Any
@@ -16,6 +17,8 @@ import soundfile as sf
 import uvicorn
 
 from arbotts.synthesizer import ArboTTS
+
+REPO_ROOT = Path(__file__).resolve().parent.parent
 
 app = FastAPI(
     title="ArboTTS API",
@@ -307,6 +310,15 @@ def health() -> dict[str, str]:
 def list_speakers() -> dict[str, Any]:
     engine = get_engine()
     return engine.profiles.get("speakers", {})
+
+
+@app.get("/v1/tiers")
+def list_tiers() -> dict[str, Any]:
+    tiers_path = REPO_ROOT / "configs" / "tiers.json"
+    if tiers_path.exists():
+        with open(tiers_path, "r", encoding="utf-8") as f:
+            return json.load(f)
+    return {"tiers": {}}
 
 
 @app.post("/v1/audio/speech")

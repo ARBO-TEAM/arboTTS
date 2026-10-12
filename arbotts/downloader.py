@@ -20,8 +20,14 @@ MODEL_FILES_V1 = {
 }
 MODEL_FILES = MODEL_FILES_V1
 
+TIER_FILES = {
+    "standard": {"model": "arbotts_v1.onnx", "config": "arbotts_v1.onnx.json"},
+    "small": {"model": "arbotts_small.onnx", "config": "arbotts_small.onnx.json"},
+    "tiny": {"model": "arbotts_tiny.onnx", "config": "arbotts_tiny.onnx.json"},
+}
 
-def get_model_path(model_dir: str | Path | None = None) -> tuple[Path, Path]:
+
+def get_model_path(model_dir: str | Path | None = None, tier: str = "standard") -> tuple[Path, Path]:
     """Get paths to the ONNX model and config.
 
     Checks in:
@@ -29,22 +35,27 @@ def get_model_path(model_dir: str | Path | None = None) -> tuple[Path, Path]:
     2. Local working directory / repository root
     3. User cache directory (~/.cache/arbotts)
 
-    Prefers v2 (multi-speaker) if present, falls back to v1.
+    Supports tiers: 'standard', 'small', 'tiny'.
     """
     candidates = []
     if model_dir is not None:
         candidates.append(Path(model_dir))
 
-    # Check current directory & repo root
     cwd = Path.cwd()
     candidates.append(cwd)
     candidates.append(cwd / "models")
     candidates.append(Path(__file__).resolve().parent.parent)
-
-    # Check cache directory
     candidates.append(DEFAULT_CACHE_DIR)
 
-    # Check for v1 broadcast-quality model first
+    # Check for requested tier first
+    tier_info = TIER_FILES.get(tier, TIER_FILES["standard"])
+    for base in candidates:
+        m_path = base / tier_info["model"]
+        c_path = base / tier_info["config"]
+        if m_path.is_file() and c_path.is_file():
+            return m_path, c_path
+
+    # Fallback to standard / v1
     for base in candidates:
         m_path = base / MODEL_FILES_V1["model"]
         c_path = base / MODEL_FILES_V1["config"]
@@ -58,19 +69,20 @@ def get_model_path(model_dir: str | Path | None = None) -> tuple[Path, Path]:
         if m_path.is_file() and c_path.is_file():
             return m_path, c_path
 
-    # If not found, download v1 to cache directory
-    return download_model(DEFAULT_CACHE_DIR)
+    # If not found, download to cache directory
+    return download_model(DEFAULT_CACHE_DIR, tier=tier)
 
 
-def download_model(target_dir: str | Path = DEFAULT_CACHE_DIR) -> tuple[Path, Path]:
+def download_model(target_dir: str | Path = DEFAULT_CACHE_DIR, tier: str = "standard") -> tuple[Path, Path]:
     """Download ArboTTS ONNX model and configuration from GitHub Releases."""
     out_dir = Path(target_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    m_path = out_dir / MODEL_FILES["model"]
-    c_path = out_dir / MODEL_FILES["config"]
+    tier_files = TIER_FILES.get(tier, TIER_FILES["standard"])
+    m_path = out_dir / tier_files["model"]
+    c_path = out_dir / tier_files["config"]
 
-    for name, filename in MODEL_FILES.items():
+    for name, filename in tier_files.items():
         dst = out_dir / filename
         if dst.is_file() and dst.stat().st_size > 1000:
             continue

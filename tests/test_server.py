@@ -41,6 +41,13 @@ def test_api_server():
     for expected in ["arbo", "arba", "sita", "maya", "bimo", "dimas", "danu"]:
         assert expected in speakers, f"Speaker {expected} missing from /v1/speakers"
 
+    # Tiers list
+    r = client.get("/v1/tiers")
+    assert r.status_code == 200
+    tiers = r.json().get("tiers", {})
+    for expected_tier in ["standard", "small", "tiny"]:
+        assert expected_tier in tiers, f"Tier {expected_tier} missing from /v1/tiers"
+
     # Test speech synthesis endpoints for Arbo, Arba & Dimas
     if m_path.exists():
         for voice in ["arbo", "arba", "dimas"]:

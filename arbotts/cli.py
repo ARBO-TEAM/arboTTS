@@ -31,6 +31,7 @@ def main() -> None:
     ]
     parser.add_argument("-sp", "--speaker", type=str, default="arbo", choices=available_speakers, help=f"Speaker profile: {', '.join(available_speakers)} (default: 'arbo')")
     parser.add_argument("-s", "--speed", type=float, default=0.85, help="Speech speed (default: 0.85 for relaxed announcer tempo)")
+    parser.add_argument("-t", "--tier", type=str, default="standard", choices=["standard", "small", "tiny"], help="Model tier: 'standard' (60MB), 'small' (~24MB), or 'tiny' (~12MB) (default: 'standard')")
     parser.add_argument("-m", "--model", type=str, default=None, help="Custom ONNX model path (optional)")
     parser.add_argument("-c", "--config", type=str, default=None, help="Custom config json path (optional)")
 
@@ -41,7 +42,7 @@ def main() -> None:
         print("\nTip: Run 'arbotts serve' to launch the interactive local Web UI Studio.")
         return
 
-    tts = ArboTTS(model_path=args.model, config_path=args.config)
+    tts = ArboTTS(model_path=args.model, config_path=args.config, tier=args.tier)
     dur = tts.speak(args.text, args.output, lang=args.lang, speaker=args.speaker, speed=args.speed)
     print(f"[ArboTTS] Synthesized successfully ({args.speaker}) -> {args.output} ({dur:.2f} s)")
 

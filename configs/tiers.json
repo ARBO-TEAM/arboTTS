@@ -1,0 +1,53 @@
+{
+  "version": "2.0",
+  "tiers": {
+    "standard": {
+      "name": "Standard (Studio & Broadcast)",
+      "description": "High-fidelity broadcast quality with full multi-head attention and deep flow modeling.",
+      "sampling_rate": 22050,
+      "hidden_channels": 192,
+      "filter_channels": 768,
+      "n_heads": 2,
+      "n_layers": 6,
+      "upsample_initial_channel": 512,
+      "resblock": "1",
+      "model_size_mb": 60.57,
+      "parameters_m": 23.66,
+      "target_rtf_cpu": 0.025,
+      "ram_usage_mb": 150,
+      "target_platform": "Desktop, Server, Studio Production"
+    },
+    "small": {
+      "name": "Small (Fast Desktop & App)",
+      "description": "Balanced high-performance tier with 65% parameter reduction and near-identical MOS.",
+      "sampling_rate": 22050,
+      "hidden_channels": 128,
+      "filter_channels": 512,
+      "n_heads": 2,
+      "n_layers": 4,
+      "upsample_initial_channel": 256,
+      "resblock": "2",
+      "model_size_mb": 24.5,
+      "parameters_m": 7.33,
+      "target_rtf_cpu": 0.012,
+      "ram_usage_mb": 75,
+      "target_platform": "Desktop App, Chatbots, Edge Services"
+    },
+    "tiny": {
+      "name": "Tiny (Mobile & Embedded IoT)",
+      "description": "Ultra-compact sub-15MB architecture tailored for low-power mobile, Raspberry Pi, and microcontrollers.",
+      "sampling_rate": 22050,
+      "hidden_channels": 96,
+      "filter_channels": 256,
+      "n_heads": 2,
+      "n_layers": 3,
+      "upsample_initial_channel": 192,
+      "resblock": "2",
+      "model_size_mb": 12.8,
+      "parameters_m": 3.65,
+      "target_rtf_cpu": 0.006,
+      "ram_usage_mb": 35,
+      "target_platform": "Raspberry Pi, Android/iOS, Smart Speakers, Wearables"
+    }
+  }
+}
