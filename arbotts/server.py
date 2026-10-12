@@ -145,6 +145,26 @@ WEB_UI_HTML = """<!DOCTYPE html>
       <button class="preset-btn" onclick="setPreset('The old oak tree stood quietly at the edge of the forest, watching generations pass by.', 'en')">📖 Calm Narration</button>
     </div>
 
+    <div style="background:#0d1117;border:1px solid #238636;border-radius:8px;padding:12px 14px;margin-bottom:16px;">
+      <div style="font-size:12px;font-weight:700;color:#3fb950;display:flex;align-items:center;gap:6px;margin-bottom:8px;">
+        <span>🎙️ HASIL UJI COBA KLONING SUARA SAYA (USER CLONE AUDITIONS)</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(2, 1fr);gap:8px;">
+        <button class="preset-btn" style="text-align:left;padding:8px 10px;" onclick="playCloneAudio('/audition/test_01_sapaan.wav', 'Sapaan Pembuka AI (12.2s)')">
+          ▶️ <strong>Uji 1: Sapaan Pembuka</strong><br><span style="font-size:10px;color:var(--text-muted)">"Halo, ini contoh suara saya sendiri..."</span>
+        </button>
+        <button class="preset-btn" style="text-align:left;padding:8px 10px;" onclick="playCloneAudio('/audition/test_02_berita.wav', 'Berita Publik (10.6s)')">
+          ▶️ <strong>Uji 2: Narasi Berita</strong><br><span style="font-size:10px;color:var(--text-muted)">"Pemerintah kota mengumumkan rencana..."</span>
+        </button>
+        <button class="preset-btn" style="text-align:left;padding:8px 10px;" onclick="playCloneAudio('/audition/test_03_santai.wav', 'Percakapan Santai (9.3s)')">
+          ▶️ <strong>Uji 3: Percakapan Santai</strong><br><span style="font-size:10px;color:var(--text-muted)">"Kemarin sore saya mampir ke toko buku..."</span>
+        </button>
+        <button class="preset-btn" style="text-align:left;padding:8px 10px;" onclick="playCloneAudio('/audition/test_04_angka_rupiah.wav', 'Angka & Rupiah (8.2s)')">
+          ▶️ <strong>Uji 4: Angka & Rupiah</strong><br><span style="font-size:10px;color:var(--text-muted)">"Total belanjaan... 375 ribu rupiah"</span>
+        </button>
+      </div>
+    </div>
+
     <div class="control-label" style="margin-bottom:6px">PILIH MODEL TIER (UKURAN & KECEPATAN)</div>
     <div class="tier-row" style="display:flex;gap:10px;margin-bottom:16px">
       <div class="tier-btn active" id="tierStandard" onclick="setTier('standard')" style="flex:1;background:rgba(88,166,255,0.15);border:1px solid var(--accent);color:var(--text);padding:10px;border-radius:8px;cursor:pointer;transition:0.2s;text-align:center;">
@@ -253,6 +273,18 @@ WEB_UI_HTML = """<!DOCTYPE html>
       }
     }
 
+    function playCloneAudio(url, title) {
+      const player = document.getElementById('audioPlayer');
+      player.src = url;
+      document.getElementById('outputSection').style.display = 'block';
+      document.getElementById('metricSpeaker').textContent = 'USER CLONE';
+      document.getElementById('metricTier').textContent = 'CLONE';
+      document.getElementById('metricLatency').textContent = 'Prasintesis';
+      document.getElementById('metricDuration').textContent = title;
+      document.getElementById('metricRTF').textContent = '1.0x';
+      player.play().catch(e => console.log('Autoplay prevented:', e));
+    }
+
     function setPreset(text, lang = 'id') {
       document.getElementById('textInput').value = text;
       setLang(lang);
@@ -345,6 +377,16 @@ def index() -> HTMLResponse:
 @app.get("/health")
 def health() -> dict[str, str]:
     return {"status": "ok", "version": "2.0.0"}
+
+
+@app.get("/audition/{filename}")
+def get_audition_audio(filename: str) -> Response:
+    audition_dir = REPO_ROOT / "audition_clone"
+    file_path = audition_dir / filename
+    if not file_path.is_file():
+        raise HTTPException(status_code=404, detail="Berkas uji coba suara tidak ditemukan")
+    data = file_path.read_bytes()
+    return Response(content=data, media_type="audio/wav")
 
 
 @app.get("/v1/speakers")
