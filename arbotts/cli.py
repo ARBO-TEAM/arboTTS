@@ -7,6 +7,7 @@ import sys
 from pathlib import Path
 
 from arbotts.synthesizer import ArboTTS
+from arbotts.morpher import load_profiles
 
 
 def main() -> None:
@@ -25,7 +26,10 @@ def main() -> None:
     parser.add_argument("text", type=str, nargs="?", default=None, help="Text to speak")
     parser.add_argument("-o", "--output", type=str, default="output.wav", help="Output WAV path (default: output.wav)")
     parser.add_argument("-l", "--lang", type=str, default="id", choices=["id", "en"], help="Language code: 'id' or 'en' (default: 'id')")
-    parser.add_argument("-sp", "--speaker", type=str, default="arbo", choices=["arbo", "arba", "sita", "maya"], help="Speaker profile (default: 'arbo')")
+    available_speakers = list(load_profiles().get("speakers", {}).keys()) or [
+        "arbo", "bimo", "dimas", "danu", "arba", "sita", "maya"
+    ]
+    parser.add_argument("-sp", "--speaker", type=str, default="arbo", choices=available_speakers, help=f"Speaker profile: {', '.join(available_speakers)} (default: 'arbo')")
     parser.add_argument("-s", "--speed", type=float, default=0.85, help="Speech speed (default: 0.85 for relaxed announcer tempo)")
     parser.add_argument("-m", "--model", type=str, default=None, help="Custom ONNX model path (optional)")
     parser.add_argument("-c", "--config", type=str, default=None, help="Custom config json path (optional)")
