@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "arbotts"
-version = "1.1.0"
+version = "1.2.0"
 description = "Ultra-lightweight bilingual Indonesian & English Text-to-Speech"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -14,9 +14,14 @@ dependencies = [
     "onnxruntime>=1.17.0",
     "phonemizer>=3.2.1",
     "espeakng-loader>=0.1.0",
+    "scipy>=1.10.0",
 ]
 
 [project.optional-dependencies]
+web = [
+    "fastapi>=0.100.0",
+    "uvicorn>=0.20.0",
+]
 train = [
     "torch>=2.2.0",
     "torchaudio>=2.2.0",

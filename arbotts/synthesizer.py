@@ -11,6 +11,7 @@ import soundfile as sf
 
 from arbotts.downloader import get_model_path
 from arbotts.frontend import phonemizer
+from arbotts.morpher import load_profiles, morph_audio
 
 
 class ArboTTS:
@@ -20,6 +21,7 @@ class ArboTTS:
         self,
         model_path: str | Path | None = None,
         config_path: str | Path | None = None,
+        speakers_config: str | Path | None = None,
         num_threads: int = 4,
     ) -> None:
         if model_path is None or config_path is None:
@@ -31,6 +33,7 @@ class ArboTTS:
         self.model_path = m_path
         self.config_path = c_path
         self.sampling_rate = 22050
+        self.profiles = load_profiles(speakers_config)
 
         # Load phoneme table
         self.table = phonemizer.load_phoneme_table(self.config_path)
@@ -51,6 +54,7 @@ class ArboTTS:
         self,
         text: str,
         lang: str = "id",
+        speaker: str = "arbo",
         speed: float = 0.85,
         noise_scale: float = 0.667,
         noise_w: float = 0.8,
@@ -63,6 +67,9 @@ class ArboTTS:
             Input text to synthesize.
         lang : str
             Language code: 'id' for Indonesian (default) or 'en' for English.
+        speaker : str
+            Speaker profile name: 'arbo' (male announcer, default), 'arba' (female presenter),
+            'sita' (female assistant), or 'maya' (female storyteller).
         speed : float
             Speaking tempo scale (default: 0.85).
         """
@@ -91,6 +98,13 @@ class ArboTTS:
         elif max_val > 0.01:
             audio = audio * 0.95
 
+        # Morph speaker profile if requested
+        spk_key = speaker.lower()
+        if spk_key in self.profiles.get("speakers", {}):
+            recipe = self.profiles["speakers"][spk_key].get("dsp_recipe", {})
+            if recipe:
+                audio, _ = morph_audio(audio, self.sampling_rate, recipe)
+
         return audio, latency_ms
 
     def speak(
@@ -98,10 +112,11 @@ class ArboTTS:
         text: str,
         output_file: str | Path,
         lang: str = "id",
+        speaker: str = "arbo",
         speed: float = 0.85,
     ) -> float:
         """Synthesize text and save to a 16-bit PCM WAV file. Returns audio duration in seconds."""
-        audio, _ = self.synthesize(text, lang=lang, speed=speed)
+        audio, _ = self.synthesize(text, lang=lang, speaker=speaker, speed=speed)
         out_p = Path(output_file)
         out_p.parent.mkdir(parents=True, exist_ok=True)
         sf.write(str(out_p), audio, self.sampling_rate, subtype="PCM_16")

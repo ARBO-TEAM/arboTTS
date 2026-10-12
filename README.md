@@ -112,8 +112,31 @@ arbotts "Halo, selamat datang di ArboTTS!" -o halo_id.wav -l id
 # 🇬🇧 English synthesis
 arbotts "Good morning, welcome to ArboTTS!" -o welcome_en.wav -l en
 
-# Adjust tempo (e.g. 0.85 for relaxed announcer delivery)
-arbotts "Harga beras medium di pasar tradisional stabil hari ini." -o news.wav -s 0.85
+# Adjust tempo and speaker (e.g. arba for female presenter)
+arbotts "Harga beras medium di pasar tradisional stabil hari ini." -sp arba -s 0.85 -o news.wav
+```
+
+### 🌐 Web UI Studio & OpenAI-Compatible REST API
+Launch the interactive browser studio with a single command:
+
+```bash
+arbotts serve --port 8000
+```
+
+Open `http://localhost:8000` to synthesize audio, choose speaker personas (**Arbo**, **Arba**, **Sita**, **Maya**), adjust tempo, and audition speech directly in your browser.
+
+#### OpenAI TTS Client Compatibility
+ArboTTS includes a drop-in `/v1/audio/speech` endpoint compatible with the OpenAI Text-to-Speech API:
+
+```bash
+curl http://localhost:8000/v1/audio/speech \
+  -H "Content-Type: application/json" \
+  -d '{
+    "input": "Halo, selamat pagi, Indonesia!",
+    "voice": "arba",
+    "speed": 0.85
+  }' \
+  --output speech.wav
 ```
 
 ---
@@ -160,7 +183,7 @@ arboTTS/
 - [x] v1.0: Automatic Model Downloader & CLI Runner.
 - [x] v1.0: Pre-generated Audio Showcase for instant evaluation.
 - [x] v1.1: Integrated lexical e-pepet / e-taling dictionary (97.3% pronunciation accuracy).
-- [ ] v1.2: Standalone Local Web UI & REST API (FastAPI) runner.
+- [x] v1.2: Standalone Local Web UI Studio & REST API (FastAPI) runner.
 - [ ] v2.0: Multi-Speaker Architecture (Male & Female broadcast announcers in a single model file).
 
 ---
