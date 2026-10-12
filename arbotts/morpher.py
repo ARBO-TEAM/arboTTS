@@ -15,7 +15,7 @@ except ImportError:
     librosa = None  # type: ignore
 
 DEFAULT_SPEAKERS = {
-    "version": "1.0",
+    "version": "2.0",
     "sampling_rate": 22050,
     "speakers": {
         "arbo": {
@@ -31,30 +31,30 @@ DEFAULT_SPEAKERS = {
             "persona": "Professional News Presenter",
             "description": "Clear, assertive, polite, warm mid-range articulation.",
             "dsp_recipe": {
-                "pitch_shift_semitones": -0.8,
+                "pitch_shift_semitones": 12.5,
                 "presence_boost_hz": 3500,
                 "presence_gain": 0.25,
             },
         },
         "sita": {
-            "id": 2,
+            "id": 1,
             "gender": "female",
             "persona": "Smart Interactive Assistant",
             "description": "Bright, cheerful, engaging conversational tempo.",
             "dsp_recipe": {
-                "pitch_shift_semitones": 1.2,
+                "pitch_shift_semitones": 14.0,
                 "presence_boost_hz": 4000,
-                "presence_gain": 0.25,
+                "presence_gain": 0.30,
             },
         },
         "maya": {
-            "id": 3,
+            "id": 1,
             "gender": "female",
             "persona": "Calm Storyteller & Audiobook Narration",
             "description": "Gentle, relaxed, velvety warmth with soft cadence.",
             "dsp_recipe": {
-                "pitch_shift_semitones": -1.4,
-                "lowpass_warmth_hz": 5500,
+                "pitch_shift_semitones": 11.0,
+                "lowpass_warmth_hz": 5000,
             },
         },
     },

@@ -49,6 +49,8 @@ class ArboTTS:
             sess_options=opts,
             providers=["CPUExecutionProvider"],
         )
+        self.input_names = [inp.name for inp in self.session.get_inputs()]
+        self.has_sid = "sid" in self.input_names
 
     def synthesize(
         self,
@@ -78,12 +80,17 @@ class ArboTTS:
         input_lengths = np.asarray([len(phoneme_ids)], dtype=np.int64)
         scales = np.asarray([noise_scale, 1.0 / max(speed, 0.1), noise_w], dtype=np.float32)
 
+        spk_key = speaker.lower()
+        spk_info = self.profiles.get("speakers", {}).get(spk_key, {})
+        spk_id = spk_info.get("id", 0)
+
         inputs = {
             "input": input_ids,
             "input_lengths": input_lengths,
             "scales": scales,
-            "sid": None,
         }
+        if self.has_sid:
+            inputs["sid"] = np.asarray([spk_id], dtype=np.int64)
 
         t0 = time.perf_counter()
         outputs = self.session.run(["output"], inputs)
@@ -99,11 +106,12 @@ class ArboTTS:
             audio = audio * 0.95
 
         # Morph speaker profile if requested
-        spk_key = speaker.lower()
         if spk_key in self.profiles.get("speakers", {}):
             recipe = self.profiles["speakers"][spk_key].get("dsp_recipe", {})
             if recipe:
                 audio, _ = morph_audio(audio, self.sampling_rate, recipe)
+
+        return audio, latency_ms
 
         return audio, latency_ms
 

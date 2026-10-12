@@ -19,8 +19,8 @@ from arbotts.synthesizer import ArboTTS
 
 app = FastAPI(
     title="ArboTTS API",
-    description="Ultra-lightweight bilingual (Indonesian & English) Text-to-Speech engine",
-    version="1.2.0",
+    description="Ultra-lightweight bilingual (Indonesian & English) Text-to-Speech engine with Native Multi-Speaker VITS",
+    version="2.0.0",
 )
 
 app.add_middleware(
@@ -120,8 +120,8 @@ WEB_UI_HTML = """<!DOCTYPE html>
   <div class="container">
     <header>
       <div class="title-group">
-        <h1>ArboTTS Studio 🎙️ <span class="badge">v1.2 (CPU Standalone)</span></h1>
-        <div class="subtitle">Bilingual Text-to-Speech Indonesia & Inggris • Model VITS ONNX 60 MB</div>
+        <h1>ArboTTS Studio 🎙️ <span class="badge">v2.0 (Multi-Speaker VITS)</span></h1>
+        <div class="subtitle">Bilingual Text-to-Speech Indonesia & Inggris • Multi-Speaker VITS ONNX 67 MB</div>
       </div>
     </header>
 

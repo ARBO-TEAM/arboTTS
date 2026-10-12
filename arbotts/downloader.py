@@ -10,10 +10,15 @@ DEFAULT_CACHE_DIR = Path(os.environ.get("ARBOTTS_CACHE_DIR", Path.home() / ".cac
 RELEASE_TAG = "v1.0.0"
 BASE_URL = f"https://github.com/ARBO-TEAM/arboTTS/releases/download/{RELEASE_TAG}"
 
-MODEL_FILES = {
+MODEL_FILES_V2 = {
+    "model": "arbotts_v2.onnx",
+    "config": "arbotts_v2.onnx.json",
+}
+MODEL_FILES_V1 = {
     "model": "arbotts_v1.onnx",
     "config": "arbotts_v1.onnx.json",
 }
+MODEL_FILES = MODEL_FILES_V1
 
 
 def get_model_path(model_dir: str | Path | None = None) -> tuple[Path, Path]:
@@ -24,7 +29,7 @@ def get_model_path(model_dir: str | Path | None = None) -> tuple[Path, Path]:
     2. Local working directory / repository root
     3. User cache directory (~/.cache/arbotts)
 
-    If not found in any location, downloads from GitHub Releases automatically.
+    Prefers v2 (multi-speaker) if present, falls back to v1.
     """
     candidates = []
     if model_dir is not None:
@@ -39,13 +44,21 @@ def get_model_path(model_dir: str | Path | None = None) -> tuple[Path, Path]:
     # Check cache directory
     candidates.append(DEFAULT_CACHE_DIR)
 
+    # First check for v2 multi-speaker model
     for base in candidates:
-        m_path = base / MODEL_FILES["model"]
-        c_path = base / MODEL_FILES["config"]
+        m_path = base / MODEL_FILES_V2["model"]
+        c_path = base / MODEL_FILES_V2["config"]
         if m_path.is_file() and c_path.is_file():
             return m_path, c_path
 
-    # If not found, download to cache directory
+    # Fall back to v1 single-speaker model
+    for base in candidates:
+        m_path = base / MODEL_FILES_V1["model"]
+        c_path = base / MODEL_FILES_V1["config"]
+        if m_path.is_file() and c_path.is_file():
+            return m_path, c_path
+
+    # If not found, download v1 to cache directory
     return download_model(DEFAULT_CACHE_DIR)
 
 

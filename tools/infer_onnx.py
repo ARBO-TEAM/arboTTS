@@ -32,6 +32,7 @@ def synthesize_onnx(
     speed: float = 0.85,
     noise_scale: float = 0.667,
     noise_w: float = 0.8,
+    speaker_id: int = 0,
 ) -> tuple[np.ndarray, float]:
     model_p = Path(model_path)
     cfg_p = model_p.with_suffix(".onnx.json")
@@ -50,12 +51,14 @@ def synthesize_onnx(
     opts.intra_op_num_threads = 4
     session = ort.InferenceSession(str(model_p), sess_options=opts, providers=["CPUExecutionProvider"])
 
+    input_names = [inp.name for inp in session.get_inputs()]
     inputs = {
         "input": input_ids,
         "input_lengths": input_lengths,
         "scales": scales,
-        "sid": None,
     }
+    if "sid" in input_names:
+        inputs["sid"] = np.asarray([speaker_id], dtype=np.int64)
 
     t0 = time.perf_counter()
     outputs = session.run(["output"], inputs)
@@ -95,6 +98,7 @@ if __name__ == "__main__":
     parser.add_argument("-t", "--text", type=str, required=True)
     parser.add_argument("-o", "--output", type=str, required=True)
     parser.add_argument("-s", "--speed", type=float, default=0.85, help="Speech speed scale (default 0.85 for relaxed broadcast pace)")
+    parser.add_argument("-spk", "--speaker-id", type=int, default=0, help="Speaker ID (0 for Arbo, 1 for Arba)")
     args = parser.parse_args()
 
-    synthesize_onnx(args.model, args.text, args.output, speed=args.speed)
+    synthesize_onnx(args.model, args.text, args.output, speed=args.speed, speaker_id=args.speaker_id)
