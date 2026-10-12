@@ -15,7 +15,7 @@ help:
 	  '  make serve         Run Web UI Studio and REST API server on port $(PORT)' \
 	  '  make test          Run test suite with pytest' \
 	  '  make demo          Run quick speech synthesis sample' \
-	  '  make demo-all      Generate audition samples for all 4 personas' \
+	  '  make demo-all      Generate audition samples for all 7 personas' \
 	  '  make docker-build  Build lightweight standalone CPU Docker image' \
 	  '  make docker-run    Run Docker container on http://localhost:$(PORT)' \
 	  '  make clean         Clean build artifacts and caches'

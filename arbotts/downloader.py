@@ -7,7 +7,7 @@ import urllib.request
 from pathlib import Path
 
 DEFAULT_CACHE_DIR = Path(os.environ.get("ARBOTTS_CACHE_DIR", Path.home() / ".cache" / "arbotts"))
-RELEASE_TAG = "v1.0.0"
+RELEASE_TAG = "v2.0.0"
 BASE_URL = f"https://github.com/ARBO-TEAM/arboTTS/releases/download/{RELEASE_TAG}"
 
 MODEL_FILES_V2 = {

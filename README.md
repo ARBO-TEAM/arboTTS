@@ -9,7 +9,7 @@
 
 **ArboTTS** is an ultra-lightweight, production-grade bilingual (**Indonesian & English**) Text-to-Speech (TTS) engine powered by the **VITS (Variational Inference with adversarial learning for end-to-end Text-to-Speech)** architecture, optimized for standalone CPU inference using **ONNX Runtime**.
 
-With version 2.0, ArboTTS brings **High-Definition Multi-Persona Studio Synthesis** (featuring 4 distinct voices: Arbo, Arba, Sita, and Maya), an interactive browser-based **Web UI Studio**, and an **OpenAI-compatible REST API**.
+With version 2.0, ArboTTS brings **High-Definition Multi-Persona Studio Synthesis** (featuring 7 distinct voices: Arbo, Bimo, Dimas, Danu, Arba, Sita, and Maya), an interactive browser-based **Web UI Studio**, and an **OpenAI-compatible REST API**.
 
 Engineered for resource-constrained environments, ArboTTS runs smoothly on standard laptops, mini PCs, edge devices, and server instances without requiring a GPU.
 
@@ -143,7 +143,7 @@ Launch the interactive browser studio with a single command:
 arbotts serve --port 8000
 ```
 
-Open `http://localhost:8000` to synthesize audio, choose speaker personas (**Arbo**, **Arba**, **Sita**, **Maya**), adjust tempo, and audition speech directly in your browser.
+Open `http://localhost:8000` to synthesize audio, choose speaker personas (**Arbo**, **Bimo**, **Dimas**, **Danu**, **Arba**, **Sita**, **Maya**), adjust tempo, and audition speech directly in your browser.
 
 #### OpenAI TTS Client Compatibility
 ArboTTS includes a drop-in `/v1/audio/speech` endpoint compatible with the OpenAI Text-to-Speech API:
@@ -208,7 +208,7 @@ arboTTS/
 - [x] v1.0: Pre-generated Audio Showcase for instant evaluation.
 - [x] v1.1: Integrated lexical e-pepet / e-taling dictionary (97.3% pronunciation accuracy).
 - [x] v1.2: Standalone Local Web UI Studio & REST API (FastAPI) runner.
-- [x] v2.0: High-Definition Multi-Speaker Studio Architecture (Arbo, Arba, Sita, Maya personas + Web UI Studio).
+- [x] v2.0: High-Definition Multi-Speaker Studio Architecture (7 personas: Arbo, Bimo, Dimas, Danu, Arba, Sita, Maya + Web UI Studio).
 
 ---
 

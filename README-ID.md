@@ -9,7 +9,7 @@
 
 **ArboTTS** adalah mesin Text-to-Speech (TTS) bilingual (**Bahasa Indonesia & Bahasa Inggris**) ultra-ringan berbasis arsitektur **VITS (Variational Inference with adversarial learning for end-to-end Text-to-Speech)** yang dioptimasi khusus untuk eksekusi CPU standalone berformat **ONNX Runtime**.
 
-Pada versi 2.0, ArboTTS menghadirkan **Sintesis Studio Multi-Persona Definisi Tinggi** (4 karakter suara: Arbo, Arba, Sita, dan Maya), antarmuka interaktif **Web UI Studio** di browser, serta endpoint **REST API kompatibel OpenAI**.
+Pada versi 2.0, ArboTTS menghadirkan **Sintesis Studio Multi-Persona Definisi Tinggi** (7 karakter suara: Arbo, Bimo, Dimas, Danu, Arba, Sita, dan Maya), antarmuka interaktif **Web UI Studio** di browser, serta endpoint **REST API kompatibel OpenAI**.
 
 Didesain untuk kebutuhan produksi yang efisien, hemat daya, dan dapat berjalan mulus di laptop standar, mini PC, maupun server tanpa GPU.
 
@@ -143,7 +143,7 @@ Jalankan studio antarmuka web lokal hanya dengan satu perintah:
 arbotts serve --port 8000
 ```
 
-Buka `http://localhost:8000` di browser untuk mengetik kalimat, memilih profil suara (**Arbo**, **Arba**, **Sita**, **Maya**), menyetel tempo, dan mendengarkan hasil audio langsung.
+Buka `http://localhost:8000` di browser untuk mengetik kalimat, memilih profil suara (**Arbo**, **Bimo**, **Dimas**, **Danu**, **Arba**, **Sita**, **Maya**), menyetel tempo, dan mendengarkan hasil audio langsung.
 
 #### Kompatibilitas Endpoint OpenAI TTS
 ArboTTS menyediakan endpoint standar `/v1/audio/speech` yang kompatibel dengan protokol OpenAI Text-to-Speech:
@@ -209,7 +209,7 @@ arboTTS/
 - [x] v1.0: Showcase Pemutar Audio langsung di README.
 - [x] v1.1: Integrasi kamus leksikal e-pepet / e-taling otomatis (akurasi 97.3%).
 - [x] v1.2: Antarmuka Web UI Studio lokal & REST API (FastAPI) siap pakai.
-- [x] v2.0: Arsitektur Multi-Speaker Studio Resolusi Tinggi (Karakter Arbo, Arba, Sita, Maya + Web UI Studio).
+- [x] v2.0: Arsitektur Multi-Speaker Studio Resolusi Tinggi (7 Karakter: Arbo, Bimo, Dimas, Danu, Arba, Sita, Maya + Web UI Studio).
 
 ---
 

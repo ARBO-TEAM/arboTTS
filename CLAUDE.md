@@ -44,7 +44,7 @@ pytest tests -v
 
 # Uji Coba Sintesis Audio
 make demo               # Generate audio demo Arbo (demo_arbo.wav)
-make demo-all           # Generate 4 audio demo untuk semua persona ke demo_outputs/
+make demo-all           # Generate 7 audio demo untuk semua persona ke demo_outputs/
 
 # Docker
 make docker-build       # Build image arbotts:v2.0
