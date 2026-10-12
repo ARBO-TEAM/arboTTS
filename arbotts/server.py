@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import Any
 
 from fastapi import FastAPI, File, Form, HTTPException, Query, Response, UploadFile
+from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel, Field
@@ -19,15 +20,23 @@ import numpy as np
 import soundfile as sf
 import uvicorn
 
-from arbotts.synthesizer import ArboTTS
-
+import sys
 REPO_ROOT = Path(__file__).resolve().parent.parent
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from arbotts.synthesizer import ArboTTS
 
 app = FastAPI(
     title="ArboTTS API",
     description="Ultra-lightweight bilingual (Indonesian & English) Text-to-Speech engine with Native Multi-Speaker VITS and In-Context Voice Cloning",
-    version="2.0.0",
+    version="2.1.0",
 )
+
+
+audition_dir = REPO_ROOT / "audition_clone"
+audition_dir.mkdir(parents=True, exist_ok=True)
+app.mount("/audition", StaticFiles(directory=str(audition_dir)), name="audition")
 
 app.add_middleware(
     CORSMiddleware,
@@ -38,7 +47,8 @@ app.add_middleware(
 )
 
 _ENGINES: dict[str, ArboTTS] = {}
-_CLONE_MODEL: Any = None
+_CONVERTER: Any = None
+_BASE_SE: Any = None
 
 
 def get_engine(tier: str = "standard") -> ArboTTS:
@@ -49,16 +59,24 @@ def get_engine(tier: str = "standard") -> ArboTTS:
     return _ENGINES[normalized_tier]
 
 
-def get_clone_model() -> Any:
-    """Lazy load KittenTTS 2 voice cloning model."""
-    global _CLONE_MODEL
-    if _CLONE_MODEL is None:
-        try:
-            from kittenml import KittenTTS
-            _CLONE_MODEL = KittenTTS("KittenML/kitten-tts-2", weights="emb4")
-        except Exception as exc:
-            raise RuntimeError(f"Gagal memuat modul KittenTTS 2: {exc}") from exc
-    return _CLONE_MODEL
+def get_converter() -> Any:
+    """Lazy load OpenVoice ToneColorConverter on CPU."""
+    global _CONVERTER
+    if _CONVERTER is None:
+        from arbotts.vc import ToneColorConverter
+        _CONVERTER = ToneColorConverter(device="cpu")
+    return _CONVERTER
+
+
+def get_base_se() -> Any:
+    """Load pre-extracted Arbo base speaker embedding."""
+    global _BASE_SE
+    if _BASE_SE is None:
+        import torch
+        se_path = REPO_ROOT / "checkpoints_vc" / "arbo_base_se.pth"
+        if se_path.exists():
+            _BASE_SE = torch.load(se_path, map_location="cpu")
+    return _BASE_SE
 
 
 def normalize_indonesian_phonetics(text: str) -> str:
@@ -162,7 +180,7 @@ WEB_UI_HTML = """<!DOCTYPE html>
   <div class="container">
     <header>
       <div class="title-group">
-        <h1>ArboTTS Studio 🎙️ <span class="badge">v2.0 (Studio & Voice Clone)</span></h1>
+        <h1>ArboTTS Studio 🎙️ <span class="badge">v2.1 (Studio & Voice Clone)</span></h1>
         <div class="subtitle">Bilingual Text-to-Speech Indonesia & Inggris • Multi-Speaker VITS & Voice Cloning</div>
       </div>
     </header>
@@ -293,6 +311,21 @@ WEB_UI_HTML = """<!DOCTYPE html>
           <div style="font-size:10px;color:var(--text-muted);margin-top:4px;">Menyertakan teks referensi membantu model mencocokkan fonem dengan lebih presisi.</div>
         </div>
 
+        <div style="margin-bottom:14px;">
+          <label style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;display:block;margin-bottom:6px;">
+            PILIH BASE ENGINE TIER (UKURAN & LATENSI):
+          </label>
+          <div style="display:flex;gap:10px;">
+            <div id="cloneTierStd" onclick="setCloneTier('standard')" style="flex:1;background:rgba(88,166,255,0.15);border:1px solid var(--accent);color:var(--text);padding:10px;border-radius:8px;cursor:pointer;text-align:center;">
+              <div style="font-weight:700;font-size:12px;">🚀 Standard Tier (60 MB)</div>
+              <div style="font-size:10px;color:var(--text-muted);margin-top:2px;">Studio High-Fidelity</div>
+            </div>
+            <div id="cloneTierSml" onclick="setCloneTier('small')" style="flex:1;background:var(--chip-bg);border:1px solid var(--border);color:var(--text);padding:10px;border-radius:8px;cursor:pointer;text-align:center;">
+              <div style="font-weight:700;font-size:12px;">⚡ Small Tier (31 MB)</div>
+              <div style="font-size:10px;color:var(--text-muted);margin-top:2px;">Ultra-Ringan & Cepat (Optimal VPS)</div>
+            </div>
+          </div>
+        </div>
         <div style="margin-bottom:16px;">
           <label style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;display:block;margin-bottom:6px;">
             3. Kalimat Baru yang Ingin Diucapkan Suara Kloning:
@@ -321,6 +354,20 @@ WEB_UI_HTML = """<!DOCTYPE html>
   </div>
 
   <script>
+        let currentCloneTier = 'standard';
+
+    function setCloneTier(tier) {
+      currentCloneTier = tier;
+      const isStd = tier === 'standard';
+      const stdEl = document.getElementById('cloneTierStd');
+      const smlEl = document.getElementById('cloneTierSml');
+      if (stdEl && smlEl) {
+        stdEl.style.borderColor = isStd ? 'var(--accent)' : 'var(--border)';
+        stdEl.style.background = isStd ? 'rgba(88, 166, 255, 0.15)' : 'var(--chip-bg)';
+        smlEl.style.borderColor = !isStd ? '#3fb950' : 'var(--border)';
+        smlEl.style.background = !isStd ? 'rgba(63, 185, 80, 0.15)' : 'var(--chip-bg)';
+      }
+    }
     let activeTab = 'studio';
     let currentTier = 'standard';
     let currentSpeaker = 'arbo';
@@ -462,6 +509,7 @@ WEB_UI_HTML = """<!DOCTYPE html>
       const formData = new FormData();
       formData.append('file', fileInput.files[0]);
       formData.append('text', targetText);
+      formData.append('tier', currentCloneTier);
       if (refText) {
         formData.append('ref_text', refText);
       }
@@ -487,10 +535,12 @@ WEB_UI_HTML = """<!DOCTYPE html>
         player.src = url;
 
         document.getElementById('outputSection').style.display = 'block';
-        document.getElementById('metricTier').textContent = 'VOICE CLONE';
+        const tierHeader = res.headers.get('X-Tier');
+        const rtfHeader = res.headers.get('X-RTF');
+        document.getElementById('metricTier').textContent = tierHeader || `CLONE (${currentCloneTier.toUpperCase()})`;
         document.getElementById('metricLatency').textContent = latencyHeader ? `${parseFloat(latencyHeader).toFixed(0)} ms` : `${(performance.now() - t0).toFixed(0)} ms`;
         document.getElementById('metricDuration').textContent = durHeader ? `${parseFloat(durHeader).toFixed(2)} s` : '-';
-        document.getElementById('metricRTF').textContent = 'In-Context';
+        document.getElementById('metricRTF').textContent = rtfHeader ? `${rtfHeader}x` : 'Real-Time';
         document.getElementById('metricSpeaker').textContent = 'USER CLONE';
       } catch (err) {
         alert('Gagal mengkloning suara: ' + err.message);
@@ -513,7 +563,7 @@ def index() -> HTMLResponse:
 
 @app.get("/health")
 def health() -> dict[str, str]:
-    return {"status": "ok", "version": "2.0.0"}
+    return {"status": "ok", "version": "2.1.0"}
 
 
 @app.get("/v1/speakers")
@@ -567,6 +617,7 @@ async def clone_voice_speech(
     file: UploadFile = File(..., description="Reference audio file (.wav, .mp3, .m4a)"),
     text: str = Form(..., description="Target sentence to synthesize"),
     ref_text: str | None = Form(None, description="Optional transcription of the reference audio"),
+    tier: str = Form("standard", description="Model tier for base synthesis: standard or small"),
 ) -> Response:
     """Zero-shot in-context Voice Cloning endpoint."""
     orig_name = file.filename or "reference.wav"
@@ -581,33 +632,41 @@ async def clone_voice_speech(
 
     try:
         t0 = time.perf_counter()
-        model = get_clone_model()
-        spoken_text = normalize_indonesian_phonetics(text)
+        selected_tier = tier.lower().strip() if tier else "standard"
+        if selected_tier not in {"standard", "small"}:
+            selected_tier = "standard"
+        engine = get_engine(selected_tier)
+        converter = get_converter()
+        base_se = get_base_se()
 
-        audio = model.generate(
-            spoken_text,
-            reference=str(tmp_path),
-            reference_text=ref_text if ref_text and ref_text.strip() else None,
-            normalize=False,
-        )
+        # 1. Synthesize base speech using fast Indonesian ONNX model
+        base_audio, tts_ms = engine.synthesize(text=text, lang="id", speaker="arbo", speed=0.9)
+
+        # 2. Extract speaker embedding from uploaded reference audio
+        target_se = converter.extract_se(str(tmp_path))
+
+        # 3. Convert timbre to user target voice
+        converted_audio, vc_sec = converter.convert(base_audio, target_se=target_se, source_se=base_se, tau=0.3)
+
         total_time_ms = (time.perf_counter() - t0) * 1000
-        duration_sec = len(audio) / model.sample_rate
+        duration_sec = len(converted_audio) / converter.sampling_rate
 
-        max_val = float(np.abs(audio).max())
-        if max_val > 1.0:
-            audio = audio / max_val
-        elif max_val > 0.01:
-            audio = audio * 0.95
+        max_val = float(np.abs(converted_audio).max())
+        if max_val > 0.01:
+            converted_audio = converted_audio / max_val * 0.95
 
         buf = io.BytesIO()
-        sf.write(buf, audio, model.sample_rate, format="WAV", subtype="PCM_16")
+        sf.write(buf, converted_audio, converter.sampling_rate, format="WAV", subtype="PCM_16")
         buf.seek(0)
 
+        rtf = (total_time_ms / 1000.0) / max(duration_sec, 1e-4)
         headers = {
             "Content-Type": "audio/wav",
             "Content-Disposition": 'inline; filename="cloned_speech.wav"',
+            "X-Tier": f"{selected_tier.upper()} + VC",
             "X-Latency-Ms": f"{total_time_ms:.1f}",
             "X-Duration-Sec": f"{duration_sec:.2f}",
+            "X-RTF": f"{rtf:.3f}",
         }
         return Response(content=buf.getvalue(), media_type="audio/wav", headers=headers)
     except Exception as exc:
@@ -615,6 +674,21 @@ async def clone_voice_speech(
     finally:
         tmp_path.unlink(missing_ok=True)
 
+
+
+@app.get("/v1/audition/list")
+def list_audition_files() -> list[dict[str, Any]]:
+    """List pre-rendered cloned voice audition files."""
+    audition_dir = REPO_ROOT / "audition_clone"
+    files = []
+    if audition_dir.exists():
+        for p in sorted(audition_dir.glob("*.wav")):
+            files.append({
+                "name": p.name,
+                "url": f"/audition/{p.name}",
+                "size_kb": round(p.stat().st_size / 1024, 1),
+            })
+    return files
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Start ArboTTS Web UI & REST API server.")
@@ -633,7 +707,7 @@ def main() -> None:
         print(f"[Warning] Small tier engine preload skipped: {e}")
 
     print(f"\n=======================================================")
-    print(f"🎙️  ArboTTS Studio (v2.0) running at: http://{args.host}:{args.port}")
+    print(f"🎙️  ArboTTS Studio (v2.1) running at: http://{args.host}:{args.port}")
     print(f"📡 OpenAI-compatible endpoint: POST http://{args.host}:{args.port}/v1/audio/speech")
     print(f"🧬 Voice Cloning endpoint: POST http://{args.host}:{args.port}/v1/audio/clone")
     print(f"   Tiers available: Standard (60 MB), Small (31 MB)")

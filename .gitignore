@@ -34,9 +34,14 @@ empirical_durations.json
 # Raw dataset audio (text metadata train_pilot_raw.txt is kept)
 dataset/wavs/
 dataset/pilot_wavs/
+dataset/user_clips/
 
 # Model binaries (released via GitHub Releases v1.0.0)
 *.onnx
+*.onnx.json
+
+# User adaptation & dataset
+dataset/train_user_adaptation.txt
 
 # Recordings
 recordings/

@@ -1,15 +1,18 @@
-# ArboTTS (v2.0) 🎙️🇮🇩🇬🇧
+# ArboTTS (v2.1) 🎙️🇮🇩🇬🇧
 
 [English](README.md) | **Bahasa Indonesia**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Live Demo: GitHub Pages](https://img.shields.io/badge/Live%20Demo-GitHub%20Pages%20(WASM)-38bdf8.svg)](https://arbo-team.github.io/arbotts-demo/)
 [![Python: 3.10+](https://img.shields.io/badge/Python-3.10%2B-brightgreen.svg)](https://www.python.org/)
 [![Model Size: 60 MB](https://img.shields.io/badge/Model%20Size-60.57%20MB-orange.svg)](https://github.com/ARBO-TEAM/arboTTS/releases)
 [![Inference: CPU](https://img.shields.io/badge/Inference-Pure%20CPU%20(RTF%200.025x)-purple.svg)](#metrik-akustik--performa)
 
+> 🌐 **Coba Langsung (100% Client-Side WebAssembly)**: Dengarkan sintesis suara Bahasa Indonesia instan langsung di browser Anda tanpa server di **[arbo-team.github.io/arbotts-demo](https://arbo-team.github.io/arbotts-demo/)** (Source: [arbotts-demo](https://github.com/ARBO-TEAM/arbotts-demo)). Tanpa backend, tanpa API key, dan privasi penuh!
+
 **ArboTTS** adalah mesin Text-to-Speech (TTS) bilingual (**Bahasa Indonesia & Bahasa Inggris**) ultra-ringan berbasis arsitektur **VITS (Variational Inference with adversarial learning for end-to-end Text-to-Speech)** yang dioptimasi khusus untuk eksekusi CPU standalone berformat **ONNX Runtime**.
 
-Pada versi 2.0, ArboTTS menghadirkan **Sintesis Studio Multi-Persona Definisi Tinggi** (7 karakter suara: Arbo, Bimo, Dimas, Danu, Arba, Sita, dan Maya), antarmuka interaktif **Web UI Studio** di browser, serta endpoint **REST API kompatibel OpenAI**.
+Pada versi 2.1, ArboTTS menghadirkan fitur **Zero-Shot Voice Cloning di CPU** dengan ToneColorConverter, **Sintesis Studio Multi-Persona Definisi Tinggi** (7 karakter suara: Arbo, Bimo, Dimas, Danu, Arba, Sita, dan Maya), antarmuka interaktif **Web UI Studio** di browser, serta endpoint **REST API kompatibel OpenAI** dengan dukungan multi-tier engine.
 
 Didesain untuk kebutuhan produksi yang efisien, hemat daya, dan dapat berjalan mulus di laptop standar, mini PC, maupun server tanpa GPU.
 
@@ -64,7 +67,8 @@ Anda dapat langsung mendengarkan contoh audio hasil sintesis di bawah ini:
 ## ✨ Fitur Utama
 
 - 🎭 **Dukungan Multi-Persona Studio (v2.0)**: Beralih instan antar 7 karakter suara terkalibrasi (**Arbo**, **Bimo**, **Dimas**, **Danu**, **Arba**, **Sita**, **Maya**) untuk berita formal, baritone berbobot, kasual, asisten interaktif, dan narasi santai.
-- 🌐 **Web UI Studio & REST API Interaktif**: Studio berbasis web lokal di `http://localhost:8000` serta endpoint streaming `/v1/audio/speech` kompatibel standar OpenAI.
+- 🧬 **Zero-Shot Voice Cloning di CPU (v2.1)**: Mentransfer warna suara pengguna secara instan dari sampel audio referensi singkat (< 10 detik) dengan ToneColorConverter, mendukung base engine Standard (60 MB) maupun Small (31 MB) secara real-time.
+- 🌐 **Web UI Studio & REST API Interaktif**: Studio berbasis web lokal di `http://localhost:8000` dengan tab khusus Voice Cloning serta endpoint streaming `/v1/audio/speech` kompatibel standar OpenAI.
 - ⚡ **Ultra-Cepat di CPU (RTF 0.025x)**: Menghasilkan 5 detik audio dalam waktu **~120-140 milidetik** di CPU laptop standar (>35x lebih cepat dari waktu nyata).
 - 🪶 **Model Ultra-Kompak (~60 MB)**: Total hanya **23.66 juta parameter** (ukuran file ONNX **60.57 MB**). Hemat penyimpanan dan memori RAM (< 150 MB).
 - 🇮🇩🇬🇧 **Dukungan Bilingual (ID + EN)**: Artikulasi fasih bahasa Indonesia berkarakter penyiar serta sintesis bahasa Inggris yang jernih.
@@ -192,6 +196,17 @@ curl http://localhost:8000/v1/audio/speech \
   --output pidato.wav
 ```
 
+#### Endpoint Kloning Suara (Zero-Shot Voice Cloning)
+Kloning karakter suara pengguna secara instan dengan mengunggah sampel referensi suara:
+
+```bash
+curl -X POST http://localhost:8000/v1/audio/clone \
+  -F "file=@recordings/user_ref.wav" \
+  -F "text=Halo semuanya, ini suara saya hasil kloning dengan ArboTTS!" \
+  -F "tier=standard" \
+  --output suara_kloning.wav
+```
+
 ---
 
 ## 💡 Tips Artikulasi & Tempo Bicara
@@ -215,15 +230,18 @@ arboTTS/
 │   ├── morpher.py          # Resep transformasi akustik DSP per persona
 │   ├── server.py           # Web UI Studio & REST API kompatibel OpenAI
 │   ├── cli.py              # CLI runner (perintah 'arbotts')
+│   ├── vc/                 # Engine konversi suara ToneColorConverter
 │   └── frontend/           # Pemrosesan teks dan pemetaan fonem bilingual
 ├── configs/
 │   └── speakers.json       # Profil speaker & resep DSP terkalibrasi
 ├── examples/               # Skrip contoh penggunaan
 │   ├── audio/              # Sampel WAV hasil generate untuk showcase
 │   └── quickstart.py       # Contoh sintesis end-to-end bilingual
-├── tools/                  # Script pendukung
+├── tools/                  # Script pendukung & kloning suara
 │   ├── infer_onnx.py       # Standalone ONNX inference runner
-│   └── export_arbotts_onnx.py # Script ekspor PyTorch ke ONNX Opset 15
+│   ├── eval_voice_conversion.py # Evaluasi konversi suara CPU
+│   ├── export_vc_onnx.py   # Eksportir voice converter ke ONNX
+│   └── quantize_vc.py      # Skrip kuantisasi dinamis INT8
 ├── training/               # Skrip pelatihan & transfer learning
 │   ├── train_finetune_vits.py # Script fine-tuning VITS dengan anti-NaN clamp
 │   └── benchmark_vits_ft.py   # Suite evaluasi metrik akustik broadcast
@@ -243,6 +261,7 @@ arboTTS/
 - [x] v1.1: Integrasi kamus leksikal e-pepet / e-taling otomatis (akurasi 97.3%).
 - [x] v1.2: Antarmuka Web UI Studio lokal & REST API (FastAPI) siap pakai.
 - [x] v2.0: Arsitektur Multi-Speaker Studio Resolusi Tinggi (7 Karakter: Arbo, Bimo, Dimas, Danu, Arba, Sita, Maya + Web UI Studio).
+- [x] v2.1: Kloning Suara Zero-shot (ToneColorConverter) dengan Base Engine Multi-Tier, Unggah Audio di Web UI Studio, dan Optimasi FP16/INT8 CPU.
 
 ---
 
