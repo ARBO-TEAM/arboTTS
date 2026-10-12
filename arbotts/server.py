@@ -332,7 +332,7 @@ def main() -> None:
     _TTS_ENGINE = ArboTTS(model_path=args.model, config_path=args.config)
 
     print(f"\n=======================================================")
-    print(f"🎙️  ArboTTS Studio (v1.2) running at: http://{args.host}:{args.port}")
+    print(f"🎙️  ArboTTS Studio (v2.0) running at: http://{args.host}:{args.port}")
     print(f"📡 OpenAI-compatible endpoint: POST http://{args.host}:{args.port}/v1/audio/speech")
     print(f"=======================================================\n")
     uvicorn.run(app, host=args.host, port=args.port)
