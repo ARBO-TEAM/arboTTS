@@ -1,4 +1,4 @@
-"""Phonemization utilities for ArboTTS."""
+"""Bilingual (Indonesian & English) phonemization utilities for ArboTTS."""
 
 from __future__ import annotations
 
@@ -17,10 +17,20 @@ PAD_ID = 0
 BOS_ID = 1
 EOS_ID = 2
 
+LANG_TO_ESPEAK = {
+    "id": "id",
+    "indonesia": "id",
+    "indonesian": "id",
+    "en": "en-us",
+    "english": "en-us",
+    "en-us": "en-us",
+    "en-gb": "en-gb",
+}
+
 
 @dataclass(frozen=True)
 class PhonemeTable:
-    """Voice phoneme -> Piper token ID mapping."""
+    """Voice phoneme -> token ID mapping."""
     espeak_voice: str
     id_map: dict[str, int]
 
@@ -42,14 +52,14 @@ def load_phoneme_table(config_path: Path | str) -> PhonemeTable:
 
 
 class EspeakFrontend:
-    """Lazily initialized phonemizer backend."""
+    """Lazily initialized phonemizer backend supporting multiple languages."""
 
     def __init__(self) -> None:
-        self._backend = None
+        self._backends: dict[str, Any] = {}
 
-    def _init_backend(self, voice: str = "id") -> Any:
-        if self._backend is not None:
-            return self._backend
+    def _get_backend(self, voice: str = "id") -> Any:
+        if voice in self._backends:
+            return self._backends[voice]
 
         try:
             import espeakng_loader
@@ -58,33 +68,35 @@ class EspeakFrontend:
 
             EspeakWrapper.set_library(espeakng_loader.get_library_path())
             EspeakWrapper.set_data_path(espeakng_loader.get_data_path())
-            self._backend = EspeakBackend(
+            backend = EspeakBackend(
                 language=voice,
                 preserve_punctuation=True,
                 with_stress=True,
                 tie=False,
             )
-            return self._backend
+            self._backends[voice] = backend
+            return backend
         except Exception:
             pass
 
         try:
             from phonemizer.backend import EspeakBackend
-            self._backend = EspeakBackend(
+            backend = EspeakBackend(
                 language=voice,
                 preserve_punctuation=True,
                 with_stress=True,
                 tie=False,
             )
-            return self._backend
+            self._backends[voice] = backend
+            return backend
         except Exception as e:
             raise RuntimeError(
-                f"Could not initialize espeak-ng backend: {e}. "
+                f"Could not initialize espeak-ng backend for voice '{voice}': {e}. "
                 f"Please ensure 'espeakng-loader' or 'espeak-ng' is installed."
             ) from e
 
     def phonemize(self, text: str, voice: str = "id") -> str:
-        backend = self._init_backend(voice)
+        backend = self._get_backend(voice)
         out = backend.phonemize([text], strip=False)
         return out[0].rstrip() if out else ""
 
@@ -92,13 +104,19 @@ class EspeakFrontend:
 _FRONTEND = EspeakFrontend()
 
 
-def text_to_phoneme_ids(text: str, table: PhonemeTable) -> np.ndarray:
-    """Convert text string into phoneme token IDs for ONNX model."""
+def text_to_phoneme_ids(text: str, table: PhonemeTable, lang: str = "id") -> np.ndarray:
+    """Convert text string into phoneme token IDs for ONNX model.
+
+    Supports:
+    - 'id' (Indonesian, default)
+    - 'en' (English / en-us)
+    """
     clean = text.strip()
     if not clean:
         raise ValueError("Text is empty")
 
-    raw_phon = _FRONTEND.phonemize(clean, table.espeak_voice)
+    voice = LANG_TO_ESPEAK.get(lang.lower(), table.espeak_voice)
+    raw_phon = _FRONTEND.phonemize(clean, voice)
     phonemes = list(unicodedata.normalize("NFD", raw_phon))
 
     ids: list[int] = [BOS_ID, PAD_ID]

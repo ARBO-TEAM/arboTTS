@@ -13,6 +13,7 @@ dist/
 *.wav
 *.mp3
 *.flac
+!examples/audio/*.wav
 audition_samples*/
 benchmark_samples*/
 samples_eval/

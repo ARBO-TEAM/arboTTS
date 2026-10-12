@@ -50,12 +50,23 @@ class ArboTTS:
     def synthesize(
         self,
         text: str,
+        lang: str = "id",
         speed: float = 0.85,
         noise_scale: float = 0.667,
         noise_w: float = 0.8,
     ) -> tuple[np.ndarray, float]:
-        """Synthesize text into raw audio numpy array and report latency in milliseconds."""
-        phoneme_ids = phonemizer.text_to_phoneme_ids(text, self.table)
+        """Synthesize text into raw audio numpy array and report latency in milliseconds.
+
+        Parameters
+        ----------
+        text : str
+            Input text to synthesize.
+        lang : str
+            Language code: 'id' for Indonesian (default) or 'en' for English.
+        speed : float
+            Speaking tempo scale (default: 0.85).
+        """
+        phoneme_ids = phonemizer.text_to_phoneme_ids(text, self.table, lang=lang)
         input_ids = np.asarray([phoneme_ids], dtype=np.int64)
         input_lengths = np.asarray([len(phoneme_ids)], dtype=np.int64)
         scales = np.asarray([noise_scale, 1.0 / max(speed, 0.1), noise_w], dtype=np.float32)
@@ -86,10 +97,11 @@ class ArboTTS:
         self,
         text: str,
         output_file: str | Path,
+        lang: str = "id",
         speed: float = 0.85,
     ) -> float:
         """Synthesize text and save to a 16-bit PCM WAV file. Returns audio duration in seconds."""
-        audio, _ = self.synthesize(text, speed=speed)
+        audio, _ = self.synthesize(text, lang=lang, speed=speed)
         out_p = Path(output_file)
         out_p.parent.mkdir(parents=True, exist_ok=True)
         sf.write(str(out_p), audio, self.sampling_rate, subtype="PCM_16")

@@ -1,15 +1,28 @@
-# ArboTTS (v1.0) 🎙️🇮🇩
+# ArboTTS (v1.0) 🎙️🇮🇩🇬🇧
 
 **English** | [Bahasa Indonesia](README-ID.md)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Python: 3.10+](https://img.shields.io/badge/Python-3.10%2B-brightgreen.svg)](https://www.python.org/)
 [![Model Size: 60 MB](https://img.shields.io/badge/Model%20Size-60.57%20MB-orange.svg)](https://github.com/ARBO-TEAM/arboTTS/releases)
-[![Inference: CPU](https://img.shields.io/badge/Inference-Pure%20CPU%20(RTF%200.025x)-purple.svg)](#benchmarks--specifications)
+[![Inference: CPU](https://img.shields.io/badge/Inference-Pure%20CPU%20(RTF%200.025x)-purple.svg)](#-model-specifications--parameter-breakdown)
 
-**ArboTTS** is an ultra-lightweight, production-grade Indonesian Text-to-Speech (TTS) engine powered by the **VITS (Variational Inference with adversarial learning for end-to-end Text-to-Speech)** architecture, optimized for standalone CPU inference using **ONNX Runtime**.
+**ArboTTS** is an ultra-lightweight, production-grade bilingual (**Indonesian & English**) Text-to-Speech (TTS) engine powered by the **VITS (Variational Inference with adversarial learning for end-to-end Text-to-Speech)** architecture, optimized for standalone CPU inference using **ONNX Runtime**.
 
-Engineered for resource-constrained environments, ArboTTS runs smoothly on standard laptops, mini PCs, and server instances without requiring a dedicated GPU.
+Engineered for resource-constrained environments, ArboTTS runs smoothly on standard laptops, mini PCs, edge devices, and server instances without requiring a GPU.
+
+---
+
+## 🎧 Audio Samples (Listen Directly)
+
+You can listen to generated speech samples directly in your browser:
+
+| Language | Context | Text Transcripts | Audio Player & Links |
+| :--- | :--- | :--- | :--- |
+| 🇮🇩 **ID** | **Morning Greeting (Broadcast Announcer)** | *"Halo, selamat pagi, Indonesia. Awali hari Senin-mu dengan penuh ceria!"* | <audio controls src="https://raw.githubusercontent.com/ARBO-TEAM/arboTTS/main/examples/audio/id_halo_pagi.wav"></audio><br>[🔊 Play WAV](examples/audio/id_halo_pagi.wav) |
+| 🇮🇩 **ID** | **Formal News Broadcast** | *"Harga beras medium di pasar tradisional mencapai empat belas ribu rupiah per kilogram hari ini."* | <audio controls src="https://raw.githubusercontent.com/ARBO-TEAM/arboTTS/main/examples/audio/id_berita_pasar.wav"></audio><br>[🔊 Play WAV](examples/audio/id_berita_pasar.wav) |
+| 🇬🇧 **EN** | **English Greeting** | *"Good morning, and welcome to ArboTTS. Have a wonderful and productive day!"* | <audio controls src="https://raw.githubusercontent.com/ARBO-TEAM/arboTTS/main/examples/audio/en_good_morning.wav"></audio><br>[🔊 Play WAV](examples/audio/en_good_morning.wav) |
+| 🇬🇧 **EN** | **Technical Explainer** | *"ArboTTS is an ultra lightweight text to speech model running entirely on CPU."* | <audio controls src="https://raw.githubusercontent.com/ARBO-TEAM/arboTTS/main/examples/audio/en_lightweight.wav"></audio><br>[🔊 Play WAV](examples/audio/en_lightweight.wav) |
 
 ---
 
@@ -17,7 +30,8 @@ Engineered for resource-constrained environments, ArboTTS runs smoothly on stand
 
 - ⚡ **Blazing Fast on CPU (RTF 0.025x)**: Generates 5.0 seconds of speech in just **~120–140 ms** on consumer laptop CPUs (>35x faster than real-time).
 - 🪶 **Ultra-Compact Model (~60 MB)**: Total parameter count of only **23.66 million** (standalone ONNX file size **60.57 MB**). Extremely low memory footprint (< 150 MB RAM).
-- 🎙️ **Authoritative Indonesian Broadcast Voice**: Warm, clear announcer timbre tuned for native Indonesian prosody, cadence, and syllable stress.
+- 🇮🇩🇬🇧 **Bilingual Support (ID + EN)**: Native Indonesian announcer cadence with clear English multilingual synthesis.
+- 🎙️ **Authoritative Broadcast Timbre**: Warm, clear male announcer voice tuned for natural prosody, cadence, and syllable rhythm.
 - 📦 **Zero-Config Auto Downloader**: Automatically downloads model weights from GitHub Releases on first invocation to a local cache directory (`~/.cache/arbotts/`).
 - 🛡️ **PyTorch-Free Production Inference**: Runtime dependencies are strictly minimal (`onnxruntime`, `numpy`, `soundfile`).
 - 🔒 **TOS & Licensing Safe**: Synthesized via transformed acoustic weight adaptation (-2.0 semitone morphing + vocoder distillation), free of third-party cloning or re-hosting liabilities.
@@ -53,7 +67,7 @@ pip install -e .
 ```
 
 ### 2. System Requirements
-ArboTTS uses `espeak-ng` for Indonesian phonemization. Ensure `espeakng-loader` or `espeak-ng` is available:
+ArboTTS uses `espeak-ng` for multilingual phonemization. Ensure `espeakng-loader` or `espeak-ng` is available:
 ```bash
 pip install espeakng-loader phonemizer
 ```
@@ -63,7 +77,7 @@ pip install espeakng-loader phonemizer
 ## 💻 Quickstart
 
 ### Python API
-Synthesize natural speech in just three lines of Python:
+Synthesize natural speech in Indonesian or English with just a few lines:
 
 ```python
 from arbotts import ArboTTS
@@ -71,22 +85,32 @@ from arbotts import ArboTTS
 # Initialize synthesizer (auto-downloads model on first run)
 tts = ArboTTS()
 
-# Synthesize directly to a WAV file
-output_file = "output.wav"
-text = "Halo, selamat pagi, Indonesia. Awali hari Senin-mu dengan penuh ceria!"
+# 🇮🇩 Indonesian synthesis
+tts.speak(
+    text="Halo, selamat pagi, Indonesia. Awali hari Senin-mu dengan penuh ceria!",
+    output_file="halo_id.wav",
+    lang="id",
+    speed=0.85,
+)
 
-# speed=0.85 delivers a relaxed, authoritative broadcast pace
-duration = tts.speak(text, output_file, speed=0.85)
-
-print(f"Generated audio: {output_file} (Duration: {duration:.2f} s)")
+# 🇬🇧 English synthesis
+tts.speak(
+    text="Good morning, and welcome to ArboTTS. Have a wonderful and productive day!",
+    output_file="welcome_en.wav",
+    lang="en",
+    speed=0.85,
+)
 ```
 
 ### Command Line Interface (CLI)
 Once installed, the `arbotts` command is accessible directly from your terminal:
 
 ```bash
-# Basic synthesis
-arbotts "Halo, selamat datang di ArboTTS!" -o halo.wav
+# 🇮🇩 Indonesian synthesis (default)
+arbotts "Halo, selamat datang di ArboTTS!" -o halo_id.wav -l id
+
+# 🇬🇧 English synthesis
+arbotts "Good morning, welcome to ArboTTS!" -o welcome_en.wav -l en
 
 # Adjust tempo (e.g. 0.85 for relaxed announcer delivery)
 arbotts "Harga beras medium di pasar tradisional stabil hari ini." -o news.wav -s 0.85
@@ -113,9 +137,10 @@ arboTTS/
 │   ├── downloader.py       # GitHub Releases automatic weight downloader
 │   ├── synthesizer.py      # Standalone ONNX Runtime CPU engine
 │   ├── cli.py              # CLI command runner ('arbotts')
-│   └── frontend/           # Phoneme mapping and text normalization
-├── examples/               # Example scripts
-│   └── quickstart.py       # End-to-end synthesis demo
+│   └── frontend/           # Bilingual phoneme mapping & normalizer
+├── examples/               # Example scripts & showcase
+│   ├── audio/              # Pre-generated sample WAV files for demo
+│   └── quickstart.py       # End-to-end bilingual synthesis demo
 ├── tools/                  # Utility scripts
 │   ├── infer_onnx.py       # Direct ONNX runner
 │   └── export_arbotts_onnx.py # PyTorch to ONNX exporter (opset 15)
@@ -131,11 +156,12 @@ arboTTS/
 
 ## 🗺️ Roadmap
 
-- [x] v1.0: VITS Base Fine-Tuning + Standalone ONNX CPU Export (60 MB).
+- [x] v1.0: Bilingual VITS Base Fine-Tuning + Standalone ONNX CPU Export (60 MB).
 - [x] v1.0: Automatic Model Downloader & CLI Runner.
-- [ ] v1.1: Multi-Speaker Support (Male & Female broadcast announcers in a single model file).
-- [ ] v1.2: Integrated lexical e-pepet / e-taling dictionary (97.3% pronunciation accuracy).
-- [ ] v1.3: Standalone Local Web UI & REST API (FastAPI) runner.
+- [x] v1.0: Pre-generated Audio Showcase for instant evaluation.
+- [ ] v1.1: Integrated lexical e-pepet / e-taling dictionary (97.3% pronunciation accuracy).
+- [ ] v1.2: Standalone Local Web UI & REST API (FastAPI) runner.
+- [ ] v2.0: Multi-Speaker Architecture (Male & Female broadcast announcers in a single model file).
 
 ---
 
