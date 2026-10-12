@@ -72,11 +72,16 @@ class ArboTTS:
         speaker: str = "arba",
         speed: float = 0.85,
     ) -> tuple[np.ndarray | None, int]:
-        """Synthesize female persona using the high-definition neural stream from audition_arba."""
+        """Synthesize studio persona using high-definition neural stream."""
         if edge_tts is None:
             return None, 0
 
-        voice = "id-ID-GadisNeural" if lang == "id" else "en-US-JennyNeural"
+        spk_info = self.profiles.get("speakers", {}).get(speaker, {})
+        is_male = spk_info.get("gender") == "male"
+        if is_male:
+            voice = "id-ID-ArdiNeural" if lang == "id" else "en-US-GuyNeural"
+        else:
+            voice = "id-ID-GadisNeural" if lang == "id" else "en-US-JennyNeural"
 
         # Apply speed adjustment via SSML rate if needed
         rate_pct = int(round((speed - 1.0) * 100))
@@ -125,7 +130,8 @@ class ArboTTS:
         lang : str
             Language code: 'id' for Indonesian (default) or 'en' for English.
         speaker : str
-            Speaker profile name: 'arbo' (male announcer, default), 'arba' (female presenter),
+            Speaker profile name: 'arbo' (male announcer, default), 'bimo' (male baritone),
+            'dimas' (young male), 'danu' (male narrator), 'arba' (female presenter),
             'sita' (female assistant), or 'maya' (female storyteller).
         speed : float
             Speaking tempo scale (default: 0.85).
@@ -133,8 +139,8 @@ class ArboTTS:
         spk_key = speaker.lower()
         t0 = time.perf_counter()
 
-        # For female personas (arba, sita, maya), use studio pipeline from audition_arba
-        if spk_key in ("arba", "sita", "maya"):
+        # For studio personas (female: arba, sita, maya; male: bimo, dimas, danu)
+        if spk_key in ("arba", "sita", "maya", "bimo", "dimas", "danu"):
             audio, sr = self._synthesize_neural_stream(text, lang=lang, speaker=spk_key, speed=speed)
             if audio is not None and len(audio) > 100:
                 recipe = self.profiles.get("speakers", {}).get(spk_key, {}).get("dsp_recipe", {})

@@ -38,14 +38,12 @@ def test_api_server():
     r = client.get("/v1/speakers")
     assert r.status_code == 200
     speakers = r.json()
-    assert "arbo" in speakers
-    assert "arba" in speakers
-    assert "sita" in speakers
-    assert "maya" in speakers
+    for expected in ["arbo", "arba", "sita", "maya", "bimo", "dimas", "danu"]:
+        assert expected in speakers, f"Speaker {expected} missing from /v1/speakers"
 
-    # Test speech synthesis endpoints for Arbo & Arba
+    # Test speech synthesis endpoints for Arbo, Arba & Dimas
     if m_path.exists():
-        for voice in ["arbo", "arba"]:
+        for voice in ["arbo", "arba", "dimas"]:
             resp = client.post(
                 "/v1/audio/speech",
                 json={"input": "Halo selamat pagi", "voice": voice, "speed": 0.85},

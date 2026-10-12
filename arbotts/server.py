@@ -145,12 +145,25 @@ WEB_UI_HTML = """<!DOCTYPE html>
     <div class="control-grid">
       <div class="control-card">
         <div class="control-label">Pilih Karakter Suara (Speaker)</div>
-        <div class="speakers-row">
+        <div style="font-size:10px;color:var(--accent);margin-bottom:4px;font-weight:600">👨 SUARA PRIA:</div>
+        <div class="speakers-row" style="margin-bottom:8px">
           <div class="speaker-btn active" onclick="setSpeaker('arbo', this)">
-            <span class="icon">🎙️</span> Arbo<br><span style="font-size:10px;color:var(--text-muted)">Pria</span>
+            <span class="icon">🎙️</span> Arbo<br><span style="font-size:10px;color:var(--text-muted)">Penyiar</span>
           </div>
+          <div class="speaker-btn" onclick="setSpeaker('bimo', this)">
+            <span class="icon">📢</span> Bimo<br><span style="font-size:10px;color:var(--text-muted)">Baritone</span>
+          </div>
+          <div class="speaker-btn" onclick="setSpeaker('dimas', this)">
+            <span class="icon">⚡</span> Dimas<br><span style="font-size:10px;color:var(--text-muted)">Kasual</span>
+          </div>
+          <div class="speaker-btn" onclick="setSpeaker('danu', this)">
+            <span class="icon">☕</span> Danu<br><span style="font-size:10px;color:var(--text-muted)">Santun</span>
+          </div>
+        </div>
+        <div style="font-size:10px;color:var(--accent);margin-bottom:4px;font-weight:600">👩 SUARA WANITA:</div>
+        <div class="speakers-row" style="grid-template-columns: repeat(3, 1fr)">
           <div class="speaker-btn" onclick="setSpeaker('arba', this)">
-            <span class="icon">👩</span> Arba<br><span style="font-size:10px;color:var(--text-muted)">Wanita</span>
+            <span class="icon">👩</span> Arba<br><span style="font-size:10px;color:var(--text-muted)">Presenter</span>
           </div>
           <div class="speaker-btn" onclick="setSpeaker('sita', this)">
             <span class="icon">🤖</span> Sita<br><span style="font-size:10px;color:var(--text-muted)">Asisten</span>

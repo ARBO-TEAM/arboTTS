@@ -57,6 +57,35 @@ DEFAULT_SPEAKERS = {
                 "lowpass_warmth_hz": 5500,
             },
         },
+        "bimo": {
+            "id": 4,
+            "gender": "male",
+            "persona": "Deep Baritone & Authority",
+            "description": "Heavy resonance, mature, authoritative cadence for documentaries & corporate VO.",
+            "dsp_recipe": {
+                "pitch_shift_semitones": -1.5,
+                "lowpass_warmth_hz": 5500,
+            },
+        },
+        "dimas": {
+            "id": 5,
+            "gender": "male",
+            "persona": "Young & Energetic Casual",
+            "description": "Dynamic, friendly conversational tempo with crisp velar articulation.",
+            "dsp_recipe": {
+                "pitch_shift_semitones": 1.0,
+            },
+        },
+        "danu": {
+            "id": 6,
+            "gender": "male",
+            "persona": "Calm Storyteller & Narrator",
+            "description": "Warm, gentle cadence for storytelling, documentaries, and audiobooks.",
+            "dsp_recipe": {
+                "pitch_shift_semitones": -0.7,
+                "lowpass_warmth_hz": 6000,
+            },
+        },
     },
 }
 
@@ -99,7 +128,7 @@ def morph_audio(audio: np.ndarray, sr: int, recipe: dict[str, Any]) -> tuple[np.
 
     pitch_semitones = recipe.get("pitch_shift_semitones", 0.0)
     if abs(pitch_semitones) > 1e-3 and librosa is not None:
-        audio = librosa.effects.pitch_shift(audio, sr=sr, n_steps=pitch_semitones, n_fft=512)
+        audio = librosa.effects.pitch_shift(audio, sr=sr, n_steps=pitch_semitones, n_fft=2048)
 
     if "presence_boost_hz" in recipe:
         audio = apply_presence_boost(

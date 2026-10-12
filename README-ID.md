@@ -17,11 +17,14 @@ Didesain untuk kebutuhan produksi yang efisien, hemat daya, dan dapat berjalan m
 
 ## 🎭 Karakter Profil Suara Studio
 
-ArboTTS v2.0 menyediakan 4 persona suara yang dikalibrasi untuk berbagai kebutuhan penyiaran dan interaksi:
+ArboTTS v2.0 menyediakan 7 persona suara yang dikalibrasi untuk berbagai kebutuhan penyiaran dan interaksi:
 
 | Persona | Gender | Karakter & Intonasi | Peruntukan Terbaik | Opsi CLI |
 | :--- | :--- | :--- | :--- | :--- |
 | **Arbo** | 👨 Pria | **Penyiar Berita Formal**<br>Berwibawa, konsonan letup tegas, resonansi dalam | Berita formal, pengumuman resmi, pidato | `-sp arbo` *(default)* |
+| **Bimo** | 👨 Pria | **Baritone Berat & Berwibawa**<br>Resonansi dada tebal, berbobot, wibawa matang | Dokumenter, profil perusahaan, voiceover trailer | `-sp bimo` |
+| **Dimas** | 👨 Pria | **Pria Muda Kasual & Energik**<br>Tempo dinamis, ramah, artikulasi konsonan letup jernih | Asisten pintar, podcast, video explainer modern | `-sp dimas` |
+| **Danu** | 👨 Pria | **Narator Tenang & Santun**<br>Tekstur hangat, tempo lembut, intonasi menenangkan | Audiobook, meditasi, dongeng, pemandu museum | `-sp danu` |
 | **Arba** | 👩 Wanita | **Presenter Berita Profesional**<br>Artikulasi jernih, santun, lugas dengan kehangatan mid-range | Siaran berita, video korporat, laporan jurnalis | `-sp arba` |
 | **Sita** | 👩 Wanita | **Asisten Interaktif Cerdas**<br>Ceria, bersahabat, tempo percakapan interaktif | Asisten virtual, CS bot, panduan aplikasi | `-sp sita` |
 | **Maya** | 👩 Wanita | **Narator Tenang & Storyteller**<br>Lembut, santai, tekstur hangat dengan ritme halus | Audiobook, mediasi, dongeng, dokumenter | `-sp maya` |
@@ -43,7 +46,7 @@ Anda dapat langsung mendengarkan contoh audio hasil sintesis di bawah ini:
 
 ## ✨ Fitur Utama
 
-- 🎭 **Dukungan Multi-Persona Studio (v2.0)**: Beralih instan antar 4 karakter suara terkalibrasi (**Arbo**, **Arba**, **Sita**, **Maya**) untuk berita formal, presenter, asisten interaktif, dan narasi santai.
+- 🎭 **Dukungan Multi-Persona Studio (v2.0)**: Beralih instan antar 7 karakter suara terkalibrasi (**Arbo**, **Bimo**, **Dimas**, **Danu**, **Arba**, **Sita**, **Maya**) untuk berita formal, baritone berbobot, kasual, asisten interaktif, dan narasi santai.
 - 🌐 **Web UI Studio & REST API Interaktif**: Studio berbasis web lokal di `http://localhost:8000` serta endpoint streaming `/v1/audio/speech` kompatibel standar OpenAI.
 - ⚡ **Ultra-Cepat di CPU (RTF 0.025x)**: Menghasilkan 5 detik audio dalam waktu **~120-140 milidetik** di CPU laptop standar (>35x lebih cepat dari waktu nyata).
 - 🪶 **Model Ultra-Kompak (~60 MB)**: Total hanya **23.66 juta parameter** (ukuran file ONNX **60.57 MB**). Hemat penyimpanan dan memori RAM (< 150 MB).

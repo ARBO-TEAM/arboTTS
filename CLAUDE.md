@@ -1,6 +1,6 @@
 # ArboTTS — Developer & Agent Guidelines (CLAUDE.md)
 
-ArboTTS adalah mesin Text-to-Speech (TTS) bilingual (Indonesia & Inggris) ultra-ringan berbasis arsitektur **VITS** standalone ONNX Runtime CPU serta pipeline **Studio Multi-Persona HD** (Arbo, Arba, Sita, Maya).
+ArboTTS adalah mesin Text-to-Speech (TTS) bilingual (Indonesia & Inggris) ultra-ringan berbasis arsitektur **VITS** standalone ONNX Runtime CPU serta pipeline **Studio Multi-Persona HD** (7 Karakter: Arbo, Bimo, Dimas, Danu, Arba, Sita, Maya).
 
 ---
 
@@ -8,9 +8,12 @@ ArboTTS adalah mesin Text-to-Speech (TTS) bilingual (Indonesia & Inggris) ultra-
 
 1. **Dual-Mode Hybrid Synthesis**:
    - **Arbo (Pria - Broadcast Announcer)**: Inferensi lokal murni di CPU via ONNX Runtime (`arbotts_v1.onnx`, 22,050 Hz, RTF ~0.025x, latensi ~13–60 ms).
-   - **Arba, Sita, Maya (Wanita - Studio Personas)**: Stream sintesis definisi tinggi neural (`id-ID-GadisNeural` untuk ID, `en-US-JennyNeural` untuk EN) yang dikombinasikan dengan transformasi DSP akustik presisi dari `configs/speakers.json`.
+   - **Studio Personas (Pria: Bimo, Dimas, Danu; Wanita: Arba, Sita, Maya)**: Stream sintesis definisi tinggi neural (`id-ID-ArdiNeural` / `id-ID-GadisNeural` untuk ID, `en-US-GuyNeural` / `en-US-JennyNeural` untuk EN) dikombinasikan dengan transformasi DSP akustik presisi dari `configs/speakers.json` (dengan fallback offline otomatis ke VITS CPU).
 2. **Karakter & Resep Akustik DSP** (`configs/speakers.json` & `arbotts/morpher.py`):
    - `arbo`: Bobot VITS asli, tempo broadcast tegas (`speed=0.85`).
+   - `bimo`: Pitch shift `-1.5` st, lowpass warmth 5,500 Hz, resonansi dada tebal baritone.
+   - `dimas`: Pitch shift `+1.0` st, tempo dinamis kasual, artikulasi konsonan letup velar [g] jernih (n_fft=2048).
+   - `danu`: Pitch shift `-0.7` st, lowpass warmth 6,000 Hz, narasi santun dan lembut.
    - `arba`: Pitch shift `-0.8` st, highpass presence boost 3,500 Hz (+25%), peak normalize 0.95.
    - `sita`: Pitch shift `+1.2` st, highpass presence boost 3,500 Hz (+25%), tempo interaktif ceria.
    - `maya`: Pitch shift `-1.4` st, lowpass warmth 5,500 Hz, narasi santai dan hangat.

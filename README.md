@@ -17,11 +17,14 @@ Engineered for resource-constrained environments, ArboTTS runs smoothly on stand
 
 ## 🎭 Studio Voice Personas
 
-ArboTTS v2.0 includes 4 professionally calibrated voice personas for different broadcasting and interactive contexts:
+ArboTTS v2.0 includes 7 professionally calibrated voice personas across male and female vocal ranges:
 
 | Persona | Gender | Voice Role & Tone | Best Used For | CLI Option |
 | :--- | :--- | :--- | :--- | :--- |
 | **Arbo** | 👨 Male | **Formal Broadcast Announcer**<br>Authoritative, crisp plosive consonants, deep resonance | News anchors, official announcements, formal keynotes | `-sp arbo` *(default)* |
+| **Bimo** | 👨 Male | **Deep Baritone & Authority**<br>Rich chest resonance, heavy weight, mature timbre | Documentaries, corporate voiceovers, trailers | `-sp bimo` |
+| **Dimas** | 👨 Male | **Young & Energetic Casual**<br>Friendly conversational tempo, crisp consonant articulation | Virtual assistants, podcasts, modern explainers | `-sp dimas` |
+| **Danu** | 👨 Male | **Calm Storyteller & Narrator**<br>Velvety warmth, gentle pacing, polite cadence | Audiobooks, meditation, bedtime stories, documentaries | `-sp danu` |
 | **Arba** | 👩 Female | **Professional News Presenter**<br>Articulate, clear, polite, warm mid-range articulation | News broadcasts, corporate explainers, reporting | `-sp arba` |
 | **Sita** | 👩 Female | **Smart Interactive Assistant**<br>Bright, cheerful, engaging conversational tempo | Virtual assistants, customer care, interactive bots | `-sp sita` |
 | **Maya** | 👩 Female | **Calm Storyteller & Narration**<br>Gentle, relaxed, velvety warmth with soft cadence | Audiobooks, meditation, bedtime stories, documentaries | `-sp maya` |
@@ -43,7 +46,7 @@ You can listen to generated speech samples directly in your browser:
 
 ## ✨ Key Features
 
-- 🎭 **Studio Multi-Persona Support (v2.0)**: Switch seamlessly between 4 calibrated personas (**Arbo**, **Arba**, **Sita**, **Maya**) covering formal broadcast, interactive assistant, and warm narration.
+- 🎭 **Studio Multi-Persona Support (v2.0)**: Switch seamlessly between 7 calibrated personas (**Arbo**, **Bimo**, **Dimas**, **Danu**, **Arba**, **Sita**, **Maya**) covering formal broadcast, deep baritone, casual, interactive assistant, and warm narration.
 - 🌐 **Interactive Web UI Studio & REST API**: Full browser studio at `http://localhost:8000` and drop-in OpenAI-compatible `/v1/audio/speech` streaming endpoint.
 - ⚡ **Blazing Fast on CPU (RTF 0.025x)**: Generates 5.0 seconds of speech in just **~120–140 ms** on consumer laptop CPUs (>35x faster than real-time).
 - 🪶 **Ultra-Compact Model (~60 MB)**: Total parameter count of only **23.66 million** (standalone ONNX file size **60.57 MB**). Extremely low memory footprint (< 150 MB RAM).

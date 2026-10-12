@@ -42,10 +42,13 @@ demo:
 demo-all:
 	@mkdir -p demo_outputs
 	PYTHONPATH=. $(PYTHON) -m arbotts.cli "Halo, ini Arbo, penyiar berita resmi Anda." -o demo_outputs/arbo.wav -sp arbo -s 0.85
+	PYTHONPATH=. $(PYTHON) -m arbotts.cli "Halo, saya Bimo, narator baritone berwibawa." -o demo_outputs/bimo.wav -sp bimo -s 0.85
+	PYTHONPATH=. $(PYTHON) -m arbotts.cli "Hai! Saya Dimas, asisten kasual dan energik." -o demo_outputs/dimas.wav -sp dimas -s 0.90
+	PYTHONPATH=. $(PYTHON) -m arbotts.cli "Selamat malam, saya Danu, narator santun dan lembut." -o demo_outputs/danu.wav -sp danu -s 0.85
 	PYTHONPATH=. $(PYTHON) -m arbotts.cli "Selamat pagi, saya Arba, presenter berita profesional." -o demo_outputs/arba.wav -sp arba -s 0.85
 	PYTHONPATH=. $(PYTHON) -m arbotts.cli "Hai! Saya Sita, asisten cerdas yang siap membantu." -o demo_outputs/sita.wav -sp sita -s 0.90
 	PYTHONPATH=. $(PYTHON) -m arbotts.cli "Selamat malam, saya Maya, mari kita dengarkan kisah ini." -o demo_outputs/maya.wav -sp maya -s 0.80
-	@echo "All 4 persona samples generated in demo_outputs/"
+	@echo "All 7 persona samples generated in demo_outputs/"
 
 docker-build:
 	docker build -t arbotts:v2.0 -t arbotts:latest .
