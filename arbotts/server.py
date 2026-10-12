@@ -279,7 +279,7 @@ def index() -> HTMLResponse:
 
 @app.get("/health")
 def health() -> dict[str, str]:
-    return {"status": "ok", "version": "1.2.0"}
+    return {"status": "ok", "version": "2.0.0"}
 
 
 @app.get("/v1/speakers")
