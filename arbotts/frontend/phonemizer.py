@@ -11,6 +11,8 @@ from typing import Any
 
 import numpy as np
 
+from arbotts.frontend.lexicon import resolve_indonesian_phonemes
+
 logger = logging.getLogger("arbotts.frontend")
 
 PAD_ID = 0
@@ -116,7 +118,20 @@ def text_to_phoneme_ids(text: str, table: PhonemeTable, lang: str = "id") -> np.
         raise ValueError("Text is empty")
 
     voice = LANG_TO_ESPEAK.get(lang.lower(), table.espeak_voice)
-    raw_phon = _FRONTEND.phonemize(clean, voice)
+    if lang.lower() in ("id", "indonesia", "indonesian"):
+        words = clean.split()
+        if words:
+            backend = _FRONTEND._get_backend(voice)
+            raw_phs = backend.phonemize(words, strip=False)
+            fixed_phs = [
+                resolve_indonesian_phonemes(w, ph.strip())
+                for w, ph in zip(words, raw_phs)
+            ]
+            raw_phon = " ".join(fixed_phs)
+        else:
+            raw_phon = _FRONTEND.phonemize(clean, voice)
+    else:
+        raw_phon = _FRONTEND.phonemize(clean, voice)
     phonemes = list(unicodedata.normalize("NFD", raw_phon))
 
     ids: list[int] = [BOS_ID, PAD_ID]

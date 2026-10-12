@@ -159,7 +159,7 @@ arboTTS/
 - [x] v1.0: Model VITS Base Fine-Tuning + Standalone ONNX CPU Export (60 MB).
 - [x] v1.0: Auto-Downloader dari GitHub Releases & CLI interface.
 - [x] v1.0: Showcase Pemutar Audio langsung di README.
-- [ ] v1.1: Integrasi kamus leksikal e-pepet / e-taling otomatis (akurasi 97.3%).
+- [x] v1.1: Integrasi kamus leksikal e-pepet / e-taling otomatis (akurasi 97.3%).
 - [ ] v1.2: Antarmuka Web UI lokal & REST API (FastAPI) siap pakai.
 - [ ] v2.0: Dukungan Multi-Speaker (Pilihan suara pria & wanita dalam 1 file model terpadu).
 

@@ -159,7 +159,7 @@ arboTTS/
 - [x] v1.0: Bilingual VITS Base Fine-Tuning + Standalone ONNX CPU Export (60 MB).
 - [x] v1.0: Automatic Model Downloader & CLI Runner.
 - [x] v1.0: Pre-generated Audio Showcase for instant evaluation.
-- [ ] v1.1: Integrated lexical e-pepet / e-taling dictionary (97.3% pronunciation accuracy).
+- [x] v1.1: Integrated lexical e-pepet / e-taling dictionary (97.3% pronunciation accuracy).
 - [ ] v1.2: Standalone Local Web UI & REST API (FastAPI) runner.
 - [ ] v2.0: Multi-Speaker Architecture (Male & Female broadcast announcers in a single model file).
 
