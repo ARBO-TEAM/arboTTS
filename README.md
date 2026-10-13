@@ -45,6 +45,7 @@ ArboTTS provides tiered models to balance acoustic fidelity against memory footp
 
 | Tier | Model File | Size (ONNX) | Parameters | Architecture Config | Mean CPU Latency / RTF | Target Platform |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| 🌸 **Kokoro ONNX** *(v2.3)* | `model_quantized.onnx` | **~88 MB** | **82 M** | StyleTTS 2 + iSTFTNet (24 kHz, INT8 Quantized) | ~400 ms (0.05x RTF) | Studio 24 kHz, native Indonesian cadence & zero-shot cloning |
 | 🎙️ **Studio Clone** | `Qwen3-SpeechLM` | **~550 MB** | **1.7 B (1.58-bit)** | Autoregressive Neural Codec Speech LM | Sub-second (RTX GPU) / ~1.0x RTF | True zero-shot voice cloning (timbre + prosody) |
 | 🚀 **Standard** *(Default)* | `arbotts_v1.onnx` | **60.57 MB** | **23.66 M** | Hidden 192, Filter 768, 6 Layers, ResBlock1 | ~100–140 ms (0.025x RTF) | Studio production, desktop, server |
 | ⚡ **Small** | `arbotts_small.onnx` | **31.29 MB** | **8.39 M** | Hidden 128, Filter 512, 4 Layers, ResBlock2 | ~45–65 ms (0.012x RTF) | Fast chatbots, edge apps, lightweight servers |
@@ -144,6 +145,14 @@ tts_small.speak(
     speaker="arbo",
     lang="id",
     speed=0.85,
+)
+
+# 🌸 Kokoro ONNX tier: 24 kHz Studio Naturalness (~88 MB INT8 Quantized)
+tts_kokoro = ArboTTS(tier="kokoro")
+tts_kokoro.speak(
+    text="Halo, selamat pagi Indonesia. Suara ini sangat ekspresif dan jernih.",
+    output_file="kokoro_output.wav",
+    speaker="arbo",
 )
 
 # 🇬🇧 English synthesis

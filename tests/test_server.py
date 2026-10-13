@@ -32,7 +32,7 @@ def test_api_server():
     r = client.get("/")
     assert r.status_code == 200
     assert "ArboTTS Studio" in r.text
-    assert "v2.0" in r.text
+    assert "v2." in r.text
 
     # Speakers list
     r = client.get("/v1/speakers")

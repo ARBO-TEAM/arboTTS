@@ -31,7 +31,7 @@ def main() -> None:
     ]
     parser.add_argument("-sp", "--speaker", type=str, default="arbo", choices=available_speakers, help=f"Speaker profile: {', '.join(available_speakers)} (default: 'arbo')")
     parser.add_argument("-s", "--speed", type=float, default=0.85, help="Speech speed (default: 0.85 for relaxed announcer tempo)")
-    parser.add_argument("-t", "--tier", type=str, default="standard", choices=["standard", "small", "tiny", "studio_clone"], help="Model tier: 'standard' (60MB), 'small' (~24MB), 'tiny' (~12MB), or 'studio_clone' (~550MB in-context) (default: 'standard')")
+    parser.add_argument("-t", "--tier", type=str, default="standard", choices=["standard", "small", "tiny", "kokoro", "studio_clone"], help="Model tier: 'standard' (60MB), 'small' (~24MB), 'tiny' (~12MB), 'kokoro' (~88MB ONNX 24kHz), or 'studio_clone' (~550MB in-context) (default: 'standard')")
     parser.add_argument("--reference", "-ref", type=str, default=None, help="Path to reference audio file for zero-shot voice cloning (e.g. sample.wav)")
     parser.add_argument("--reference-text", "-rt", type=str, default=None, help="Transcript of reference audio (optional, auto-transcribed if omitted)")
     parser.add_argument("-m", "--model", type=str, default=None, help="Custom ONNX model path (optional)")
@@ -44,22 +44,51 @@ def main() -> None:
         print("\nTip: Run 'arbotts serve' to launch the interactive local Web UI Studio.")
         return
 
+    if args.tier == "kokoro":
+        from arbotts.kokoro_engine import KokoroONNXSynthesizer
+
+        voice = args.reference or args.speaker
+        kokoro_engine = KokoroONNXSynthesizer()
+        dur = kokoro_engine.speak(
+            text=args.text,
+            output_path=args.output,
+            voice=voice,
+            speed=args.speed,
+            lang=args.lang,
+        )
+        print(f"[ArboTTS Kokoro ONNX ~88MB] Synthesized successfully ({voice}) -> {args.output} ({dur:.2f} s, 24 kHz)")
+        return
+
     if args.reference or args.tier == "studio_clone":
         if not args.reference:
             print("Error: Voice cloning requires --reference audio path.", file=sys.stderr)
             sys.exit(1)
-        from arbotts.clone import StudioClone
-        clone_engine = StudioClone()
-        audio, sr, latency_ms = clone_engine.clone(
-            text=args.text,
-            reference=args.reference,
-            reference_text=args.reference_text,
-            speed=args.speed,
-        )
+        if args.tier == "studio_clone":
+            from arbotts.clone import StudioClone
+
+            clone_engine = StudioClone()
+            audio, sr, latency_ms = clone_engine.clone(
+                text=args.text,
+                reference=args.reference,
+                reference_text=args.reference_text,
+                speed=args.speed,
+            )
+            tier_name = "Studio Clone ~550MB"
+        else:
+            from arbotts.clone import AutoClone
+
+            clone_engine = AutoClone(tier=args.tier)
+            audio, sr, latency_ms = clone_engine.clone(
+                text=args.text,
+                reference=args.reference,
+                speed=args.speed,
+            )
+            tier_name = "Auto Clone ~96MB"
+
         import soundfile as sf
         sf.write(args.output, audio, sr)
         dur = len(audio) / sr
-        print(f"[ArboTTS Studio Clone] Cloned successfully from {args.reference} -> {args.output} ({dur:.2f} s in {latency_ms/1000:.2f} s)")
+        print(f"[ArboTTS {tier_name}] Cloned successfully from {args.reference} -> {args.output} ({dur:.2f} s in {latency_ms/1000:.2f} s)")
         return
 
     tts = ArboTTS(model_path=args.model, config_path=args.config, tier=args.tier)

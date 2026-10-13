@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "arbotts"
-version = "2.1.0"
+version = "2.3.0"
 description = "Ultra-lightweight bilingual Indonesian & English Text-to-Speech"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -17,12 +17,16 @@ dependencies = [
     "scipy>=1.10.0",
     "librosa>=0.10.0",
     "edge-tts>=6.1.0",
+    "huggingface-hub>=0.20.0",
 ]
 
 [project.optional-dependencies]
 web = [
     "fastapi>=0.100.0",
     "uvicorn>=0.20.0",
+]
+kokoro = [
+    "inno-kokoro>=0.2.0",
 ]
 clone = [
     "kittenml>=0.9.4",

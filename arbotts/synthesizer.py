@@ -40,6 +40,20 @@ class ArboTTS:
     ) -> None:
         self.tier = tier
         self._studio_clone = None
+        self._auto_clone = None
+        self._kokoro = None
+
+        if tier == "kokoro":
+            from arbotts.kokoro_engine import KokoroONNXSynthesizer
+
+            self._kokoro = KokoroONNXSynthesizer(num_threads=num_threads)
+            self.sampling_rate = self._kokoro.sample_rate
+            self.model_path = None
+            self.config_path = None
+            self.profiles = {}
+            self.session = None
+            self.has_sid = False
+            return
 
         if tier == "studio_clone":
             from arbotts.clone import StudioClone
@@ -155,6 +169,16 @@ class ArboTTS:
         reference : str | Path | None
             Required only when tier='studio_clone'.
         """
+        if self.tier == "kokoro":
+            t0 = time.perf_counter()
+            if self._kokoro is None:
+                from arbotts.kokoro_engine import KokoroONNXSynthesizer
+                self._kokoro = KokoroONNXSynthesizer()
+
+            voice = reference if reference is not None else speaker
+            audio, latency_ms = self._kokoro.synthesize(text, voice=voice, speed=speed, lang=lang)
+            return audio, latency_ms
+
         if self.tier == "studio_clone":
             if reference is None:
                 raise ValueError("tier='studio_clone' requires a 'reference' audio file path.")
@@ -235,51 +259,52 @@ class ArboTTS:
         text: str,
         reference: str | Path,
         reference_text: str | None = None,
-        speed: float = 1.0,
+        speed: float = 0.85,
         phonetic_preprocess: bool = True,
         polish_timbre: bool = False,
-        tau: float = 0.2,
+        tau: float = 0.85,
     ) -> tuple[np.ndarray, float]:
-        """Synthesize speech using zero-shot in-context voice cloning (~550MB).
+        """Synthesize speech using zero-configuration voice cloning.
 
-        Replicates speaker identity, intonation, and conversational cadence directly
-        from reference audio without requiring base persona selection.
-
-        Parameters
-        ----------
-        text : str
-            Input text to synthesize.
-        reference : str | Path
-            Path to reference audio file (.wav, .ogg, .mp3, .m4a).
-        reference_text : str, optional
-            Transcript of the reference audio. If None, auto-transcribes it.
-        speed : float
-            Speaking speed (default: 1.0).
-        phonetic_preprocess : bool
-            Whether to apply Indonesian phonetic rewriting (c -> ch, be-lum) (default: True).
-        polish_timbre : bool
-            Whether to apply ToneColorConverter resonance polish (default: False).
-        tau : float
-            ToneColorConverter blend ratio (default: 0.2).
-
-        Returns
-        -------
-        audio : np.ndarray
-            Synthesized audio array.
-        latency_ms : float
-            Synthesis latency in milliseconds.
+        By default, uses lightweight AutoClone (~96 MB ToneColorConverter + VITS)
+        which auto-detects speaker pitch/gender, matches the optimal base persona,
+        and transfers timbre in < 1s on CPU.
+        If tier="studio_clone", uses the 1.58-bit autoregressive SpeechLM (~550 MB).
         """
-        if self._studio_clone is None:
-            from arbotts.clone import StudioClone
+        if self.tier == "studio_clone":
+            if self._studio_clone is None:
+                from arbotts.clone import StudioClone
 
-            self._studio_clone = StudioClone()
-        audio, _, latency_ms = self._studio_clone.clone(
-            text=text,
-            reference=reference,
-            reference_text=reference_text,
-            speed=speed,
-            phonetic_preprocess=phonetic_preprocess,
-            polish_timbre=polish_timbre,
-            tau=tau,
-        )
+                self._studio_clone = StudioClone()
+            audio, _, latency_ms = self._studio_clone.clone(
+                text=text,
+                reference=reference,
+                reference_text=reference_text,
+                speed=speed,
+                phonetic_preprocess=phonetic_preprocess,
+                polish_timbre=polish_timbre,
+                tau=tau,
+            )
+        elif self.tier == "kokoro":
+            if self._kokoro is None:
+                from arbotts.kokoro_engine import KokoroONNXSynthesizer
+
+                self._kokoro = KokoroONNXSynthesizer()
+            audio, latency_ms = self._kokoro.synthesize(
+                text=text,
+                voice=reference,
+                speed=speed,
+            )
+        else:
+            if self._auto_clone is None:
+                from arbotts.clone import AutoClone
+
+                self._auto_clone = AutoClone(tier=self.tier, tau=tau)
+            audio, _, latency_ms = self._auto_clone.clone(
+                text=text,
+                reference=reference,
+                speed=speed,
+                tau=tau,
+                phonetic_preprocess=phonetic_preprocess,
+            )
         return audio, latency_ms

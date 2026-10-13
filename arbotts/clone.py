@@ -186,3 +186,115 @@ class StudioClone:
 
         latency_ms = (time.perf_counter() - t0) * 1000.0
         return audio, engine.sample_rate, latency_ms
+
+
+class AutoClone:
+    """Automated Lightweight Voice Cloning (~96 MB).
+
+    Analyzes reference audio to detect pitch (F0) and gender automatically,
+    synthesizes high-fidelity Indonesian speech using ArboTTS VITS (Standard or Small),
+    and applies ToneColorConverter timbre transfer on CPU in < 1 second.
+    """
+
+    def __init__(
+        self,
+        tier: str = "standard",
+        device: Optional[str] = None,
+        tau: float = 0.85,
+    ) -> None:
+        self.tier = tier
+        self.device = device or ("cuda" if torch.cuda.is_available() else "cpu")
+        self.tau = tau
+
+        self._tts = None
+        self._vc = None
+
+    def _get_tts(self):
+        if self._tts is None:
+            from arbotts.synthesizer import ArboTTS
+
+            self._tts = ArboTTS(tier=self.tier)
+        return self._tts
+
+    def _get_vc(self):
+        if self._vc is None:
+            from arbotts.vc import ToneColorConverter
+
+            self._vc = ToneColorConverter(device=self.device)
+        return self._vc
+
+    @property
+    def sample_rate(self) -> int:
+        return self._get_tts().sampling_rate
+
+    @staticmethod
+    def detect_pitch_and_persona(audio_path: Union[str, Path]) -> tuple[float, str]:
+        """Detect median pitch and pick base speaker persona ('arbo' for male, 'arba' for female)."""
+        import librosa
+
+        y, sr = librosa.load(str(audio_path), sr=16000, duration=6.0)
+        f0 = librosa.yin(y, fmin=60, fmax=400, sr=16000)
+        clean = f0[(f0 > 65) & (f0 < 350)]
+        pitch = float(np.median(clean)) if len(clean) > 0 else 120.0
+        persona = "arba" if pitch >= 165.0 else "arbo"
+        return pitch, persona
+
+    def clone(
+        self,
+        text: str,
+        reference: Union[str, Path],
+        speed: float = 0.85,
+        tau: Optional[float] = None,
+        phonetic_preprocess: bool = True,
+    ) -> tuple[np.ndarray, int, float]:
+        """Perform zero-configuration automated voice cloning.
+
+        Parameters
+        ----------
+        text : str
+            Text to synthesize in Indonesian or English.
+        reference : str | Path
+            Path to target reference audio (.wav, .m4a, .mp3, .ogg).
+        speed : float, optional
+            Speech tempo (default: 0.85).
+        tau : float, optional
+            Timbre blend ratio (default: 0.85).
+        phonetic_preprocess : bool, optional
+            Whether to apply Indonesian phonetic normalizer (default: True).
+
+        Returns
+        -------
+        audio : np.ndarray
+            Synthesized and timbre-converted audio waveform (1D float32).
+        sample_rate : int
+            Audio sampling rate (typically 22050 Hz).
+        latency_ms : float
+            End-to-end processing latency in milliseconds.
+        """
+        t0 = time.perf_counter()
+        ref_path = Path(reference).resolve()
+        if not ref_path.exists():
+            raise FileNotFoundError(f"Reference audio not found: {ref_path}")
+
+        blend_tau = self.tau if tau is None else tau
+
+        # 1. Automatic pitch & base persona detection
+        pitch, base_spk = self.detect_pitch_and_persona(ref_path)
+
+        # 2. Base synthesis
+        tts = self._get_tts()
+        processed_text = rewrite_indonesian_phonetics(text) if phonetic_preprocess else text
+        base_audio, _ = tts.synthesize(processed_text, speaker=base_spk, speed=speed)
+
+        # 3. ToneColorConverter timbre transfer
+        vc = self._get_vc()
+        target_se = vc.extract_se(ref_path)
+        converted, _ = vc.convert(base_audio, target_se=target_se, tau=blend_tau)
+
+        # 4. Peak normalization to 0.95
+        max_val = float(np.abs(converted).max())
+        if max_val > 0.01:
+            converted = converted / max_val * 0.95
+
+        latency_ms = (time.perf_counter() - t0) * 1000.0
+        return converted.astype(np.float32), tts.sampling_rate, latency_ms
