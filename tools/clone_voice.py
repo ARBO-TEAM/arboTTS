@@ -19,7 +19,8 @@ import torch
 
 torch.set_num_threads(8)
 
-from kittenml import KittenTTS
+from arbotts import ArboTTS
+from arbotts.clone import rewrite_indonesian_phonetics
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_REF_AUDIO = REPO_ROOT / "recordings" / "reference.wav"
@@ -29,19 +30,6 @@ DEFAULT_REF_TEXT = (
     "Halo, ini contoh rekaman suara referensi untuk kloning suara. Saya membaca beberapa "
     "kalimat biasa dengan tempo yang santai dan intonasi yang wajar."
 )
-
-
-def normalize_indonesian_phonetics(text: str) -> str:
-    """Map Indonesian orthography quirks to English-based speech tokens.
-
-    Specifically, in Indonesian the letter 'c' is always voiceless affricate /tʃ/
-    (like 'ch' in English 'chocolate'). Without this mapping, multilingual models
-    trained with English rules interpret 'ca', 'co', 'cu' as hard /k/ ('kontoh', 'koba').
-    """
-    # Replace 'c' before vowels with 'ch' (contoh -> chontoh, coba -> choba, rencana -> renchana)
-    text = re.sub(r"(?<![sS])c(?=[aeiouyAEIOUY])", "ch", text)
-    text = re.sub(r"(?<![sS])C(?=[aeiouyAEIOUY])", "Ch", text)
-    return text
 
 
 AUDITION_TESTS = {
@@ -68,6 +56,11 @@ def run_voice_clone(
     ref_text: str = DEFAULT_REF_TEXT,
     out_dir: Path = DEFAULT_OUT_DIR,
 ) -> None:
+    if not ref_audio.exists():
+        print(f"Error: Reference audio file '{ref_audio}' tidak ditemukan.", file=sys.stderr)
+        print("Penggunaan: python tools/clone_voice.py --ref path/to/suara_anda.wav", file=sys.stderr)
+        return
+
     out_dir.mkdir(parents=True, exist_ok=True)
 
     print("=======================================================")
@@ -77,26 +70,23 @@ def run_voice_clone(
     print("=======================================================\n")
 
     t0 = time.time()
-    print("Loading Voice Cloning Model (KittenTTS 2)...", flush=True)
-    m = KittenTTS("KittenML/kitten-tts-2", weights="emb4")
+    print("Loading Voice Cloning Model (ArboTTS Studio Clone)...", flush=True)
+    tts = ArboTTS(tier="studio_clone")
     print(f"Model loaded in {time.time() - t0:.1f}s\n", flush=True)
 
     for test_name, text in AUDITION_TESTS.items():
-        spoken_text = normalize_indonesian_phonetics(text)
         print(f"--> Mensintesis [{test_name}]...")
         print(f"    Teks: \"{text}\"")
-        if spoken_text != text:
-            print(f"    Fonetik: \"{spoken_text}\"")
         t_start = time.time()
 
-        audio = m.generate(
-            spoken_text,
-            reference=str(ref_audio),
+        audio, latency_ms = tts.clone(
+            text=text,
+            reference=ref_audio,
             reference_text=ref_text,
-            normalize=False,
+            phonetic_preprocess=True,
         )
         elapsed = time.time() - t_start
-        dur = len(audio) / m.sample_rate
+        dur = len(audio) / tts.sampling_rate
 
         # Normalize audio levels
         max_val = np.abs(audio).max()
@@ -106,7 +96,7 @@ def run_voice_clone(
             audio = audio * 0.95
 
         out_file = out_dir / f"{test_name}.wav"
-        sf.write(str(out_file), audio, m.sample_rate, subtype="PCM_16")
+        sf.write(str(out_file), audio, tts.sampling_rate, subtype="PCM_16")
 
         rms = float(np.sqrt(np.mean(audio**2)))
         print(

@@ -24,6 +24,11 @@ web = [
     "fastapi>=0.100.0",
     "uvicorn>=0.20.0",
 ]
+clone = [
+    "kittenml>=0.9.4",
+    "torch>=2.2.0",
+    "torchaudio>=2.2.0",
+]
 train = [
     "torch>=2.2.0",
     "torchaudio>=2.2.0",
@@ -34,3 +39,8 @@ train = [
 
 [project.scripts]
 arbotts = "arbotts.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["arbotts*"]
+

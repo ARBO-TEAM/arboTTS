@@ -39,6 +39,20 @@ class ArboTTS:
         num_threads: int = 4,
     ) -> None:
         self.tier = tier
+        self._studio_clone = None
+
+        if tier == "studio_clone":
+            from arbotts.clone import StudioClone
+
+            self._studio_clone = StudioClone()
+            self.sampling_rate = self._studio_clone.sample_rate
+            self.model_path = None
+            self.config_path = None
+            self.profiles = {}
+            self.session = None
+            self.has_sid = False
+            return
+
         if model_path is None or config_path is None:
             m_path, c_path = get_model_path(model_dir=model_path, tier=tier)
         else:
@@ -122,6 +136,7 @@ class ArboTTS:
         speed: float = 0.85,
         noise_scale: float = 0.667,
         noise_w: float = 0.8,
+        reference: str | Path | None = None,
     ) -> tuple[np.ndarray, float]:
         """Synthesize text into raw audio numpy array and report latency in milliseconds.
 
@@ -137,7 +152,14 @@ class ArboTTS:
             'sita' (female assistant), or 'maya' (female storyteller).
         speed : float
             Speaking tempo scale (default: 0.85).
+        reference : str | Path | None
+            Required only when tier='studio_clone'.
         """
+        if self.tier == "studio_clone":
+            if reference is None:
+                raise ValueError("tier='studio_clone' requires a 'reference' audio file path.")
+            return self.clone(text=text, reference=reference, speed=speed)
+
         spk_key = speaker.lower()
         t0 = time.perf_counter()
 
@@ -207,3 +229,57 @@ class ArboTTS:
         out_p.parent.mkdir(parents=True, exist_ok=True)
         sf.write(str(out_p), audio, self.sampling_rate, subtype="PCM_16")
         return len(audio) / self.sampling_rate
+
+    def clone(
+        self,
+        text: str,
+        reference: str | Path,
+        reference_text: str | None = None,
+        speed: float = 1.0,
+        phonetic_preprocess: bool = True,
+        polish_timbre: bool = False,
+        tau: float = 0.2,
+    ) -> tuple[np.ndarray, float]:
+        """Synthesize speech using zero-shot in-context voice cloning (~550MB).
+
+        Replicates speaker identity, intonation, and conversational cadence directly
+        from reference audio without requiring base persona selection.
+
+        Parameters
+        ----------
+        text : str
+            Input text to synthesize.
+        reference : str | Path
+            Path to reference audio file (.wav, .ogg, .mp3, .m4a).
+        reference_text : str, optional
+            Transcript of the reference audio. If None, auto-transcribes it.
+        speed : float
+            Speaking speed (default: 1.0).
+        phonetic_preprocess : bool
+            Whether to apply Indonesian phonetic rewriting (c -> ch, be-lum) (default: True).
+        polish_timbre : bool
+            Whether to apply ToneColorConverter resonance polish (default: False).
+        tau : float
+            ToneColorConverter blend ratio (default: 0.2).
+
+        Returns
+        -------
+        audio : np.ndarray
+            Synthesized audio array.
+        latency_ms : float
+            Synthesis latency in milliseconds.
+        """
+        if self._studio_clone is None:
+            from arbotts.clone import StudioClone
+
+            self._studio_clone = StudioClone()
+        audio, _, latency_ms = self._studio_clone.clone(
+            text=text,
+            reference=reference,
+            reference_text=reference_text,
+            speed=speed,
+            phonetic_preprocess=phonetic_preprocess,
+            polish_timbre=polish_timbre,
+            tau=tau,
+        )
+        return audio, latency_ms

@@ -45,6 +45,7 @@ ArboTTS menyediakan tingkatan model untuk menyeimbangkan ketepatan akustik denga
 
 | Tier | Berkas Model | Ukuran (ONNX) | Parameter | Konfigurasi Arsitektur | Rata-rata Latensi CPU / RTF | Target Penggunaan |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| 🎙️ **Studio Clone** | `Qwen3-SpeechLM` | **~550 MB** | **1.7 B (1.58-bit)** | Autoregressive Neural Codec Speech LM | Sub-detik (GPU RTX) / ~1.0x RTF | Kloning suara murni (timbre vokal + intonasi asli) |
 | 🚀 **Standard** *(Default)* | `arbotts_v1.onnx` | **60.57 MB** | **23.66 M** | Hidden 192, Filter 768, 6 Layers, ResBlock1 | ~100–140 ms (0.025x RTF) | Produksi studio, desktop, server |
 | ⚡ **Small** | `arbotts_small.onnx` | **31.29 MB** | **8.39 M** | Hidden 128, Filter 512, 4 Layers, ResBlock2 | ~45–65 ms (0.012x RTF) | Chatbot interaktif, aplikasi edge, server hemat RAM |
 | 🪶 **Tiny** *(Roadmap)* | `arbotts_tiny.onnx` | *~12.8 MB* | *~3.65 M* | Hidden 96, Filter 256, 3 Layers, ResBlock2 | ~20–30 ms (0.006x RTF) | Raspberry Pi, IoT, perangkat wearable & mobile |
@@ -153,6 +154,14 @@ tts_standard.speak(
     lang="en",
     speed=0.85,
 )
+
+# 🎙️ Kloning Suara Murni (~550MB Studio Clone Tier)
+# Otomatis menyalin warna suara dan intonasi percakapan tanpa perlu memilih persona dasar:
+tts = ArboTTS(tier="studio_clone")
+audio, latency_ms = tts.clone(
+    text="Halo bro, ini hasil kloning suara saya sendiri menggunakan arboTTS.",
+    reference="path/to/suara_saya.wav",
+)
 ```
 
 ### Menggunakan Command Line (CLI)
@@ -164,6 +173,9 @@ arbotts "Halo, selamat datang di ArboTTS!" -o halo_id.wav -l id
 
 # ⚡ Sintesis cepat dengan Small tier
 arbotts "Proses selesai dalam waktu sekejap." --tier small -o small_out.wav
+
+# 🎙️ Zero-Shot Voice Cloning via CLI
+arbotts "Halo teman-teman, ini rekaman suara saya sendiri." -ref path/to/suara.wav -o clone_out.wav
 
 # 🇬🇧 Sintesis Bahasa Inggris
 arbotts "Good morning, welcome to ArboTTS!" -o welcome_en.wav -l en

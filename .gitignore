@@ -43,5 +43,7 @@ dataset/user_clips/
 # User adaptation & dataset
 dataset/train_user_adaptation.txt
 
-# Recordings
+# Recordings & personal experimentation scripts
 recordings/
+tools/*_tholib.py
+tools/*_edukasi.py
