@@ -26,13 +26,15 @@ KOKORO_ONNX_REPO = "onnx-community/Kokoro-82M-ONNX"
 
 # Voice catalog mapping ArboTTS personas to Kokoro voice embeddings
 KOKORO_PRESET_VOICES = {
-    "arbo": "bm_george",
-    "arba": "af_bella",
-    "bimo": "bm_george",
-    "dimas": "am_adam",
-    "danu": "bm_lewis",
-    "sita": "af_sarah",
-    "maya": "af_nicole",
+    "arbo": "id_arbo",
+    "arba": "id_arba",
+    "bimo": "id_arbo",
+    "dimas": "id_arbo",
+    "danu": "id_arbo",
+    "sita": "id_arba",
+    "maya": "id_arba",
+    "id_arbo": "id_arbo",
+    "id_arba": "id_arba",
     "bm_george": "bm_george",
     "bm_lewis": "bm_lewis",
     "am_adam": "am_adam",
@@ -176,7 +178,21 @@ class KokoroONNXSynthesizer:
             return pack_np
 
         # 3. Preset voice name
-        preset_name = KOKORO_PRESET_VOICES.get(voice_key.lower(), "bm_george")
+        preset_name = KOKORO_PRESET_VOICES.get(voice_key.lower(), voice_key.lower())
+
+        # Check local bundled voices in arbotts/voices/ first
+        local_voice_dir = Path(__file__).resolve().parent / "voices"
+        local_candidates = [
+            local_voice_dir / f"{preset_name}.bin",
+            local_voice_dir / f"id_{preset_name}.bin",
+        ]
+        for cand in local_candidates:
+            if cand.exists():
+                arr = np.frombuffer(cand.read_bytes(), dtype=np.float32).reshape(-1, 256)
+                self._voice_cache[voice_key] = arr
+                return arr
+
+        # Fallback to downloading from HuggingFace repository
         from huggingface_hub import hf_hub_download
 
         bin_file = hf_hub_download(
