@@ -29,8 +29,8 @@ from arbotts.synthesizer import ArboTTS
 
 app = FastAPI(
     title="ArboTTS API",
-    description="Ultra-lightweight bilingual (Indonesian & English) Text-to-Speech engine with Native Multi-Speaker VITS and In-Context Voice Cloning",
-    version="2.1.0",
+    description="Ultra-lightweight bilingual (Indonesian & English) Text-to-Speech engine with Native Multi-Speaker VITS, Kokoro 24kHz, Paradee-8M Nano, and In-Context Voice Cloning",
+    version="2.4.0",
 )
 
 

@@ -1,18 +1,18 @@
-# ArboTTS (v2.1) 🎙️🇮🇩🇬🇧
+# ArboTTS (v2.4) 🎙️🇮🇩🇬🇧
 
 **English** | [Bahasa Indonesia](README-ID.md)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Live Demo: GitHub Pages](https://img.shields.io/badge/Live%20Demo-GitHub%20Pages%20(WASM)-38bdf8.svg)](https://arbo-team.github.io/arbotts-demo/)
 [![Python: 3.10+](https://img.shields.io/badge/Python-3.10%2B-brightgreen.svg)](https://www.python.org/)
-[![Model Size: 60 MB](https://img.shields.io/badge/Model%20Size-60.57%20MB-orange.svg)](https://github.com/ARBO-TEAM/arboTTS/releases)
+[![Model Size: 8.6 MB](https://img.shields.io/badge/Nano%20Size-8.62%20MB-orange.svg)](https://github.com/ARBO-TEAM/arboTTS/releases)
 [![Inference: CPU](https://img.shields.io/badge/Inference-Pure%20CPU%20(RTF%200.025x)-purple.svg)](#-model-specifications--parameter-breakdown)
 
 > 🌐 **Try it Live (100% Client-Side WebAssembly)**: Experience instant Indonesian TTS in your browser with zero server cost at **[arbo-team.github.io/arbotts-demo](https://arbo-team.github.io/arbotts-demo/)** (Source: [arbotts-demo](https://github.com/ARBO-TEAM/arbotts-demo)). No backend, no API keys, and complete privacy!
 
-**ArboTTS** is an ultra-lightweight, production-grade bilingual (**Indonesian & English**) Text-to-Speech (TTS) engine powered by the **VITS (Variational Inference with adversarial learning for end-to-end Text-to-Speech)** architecture, optimized for standalone CPU inference using **ONNX Runtime**.
+**ArboTTS** is an ultra-lightweight, production-grade bilingual (**Indonesian & English**) Text-to-Speech (TTS) engine powered by **VITS**, **Kokoro**, and distilled **Paradee-8M** architectures, optimized for standalone CPU inference using **ONNX Runtime**.
 
-With version 2.1, ArboTTS brings **Zero-Shot Voice Cloning on CPU** with flow-based ToneColorConverter, **High-Definition Multi-Persona Studio Synthesis** (featuring 7 distinct voices: Arbo, Bimo, Dimas, Danu, Arba, Sita, and Maya), an interactive browser-based **Web UI Studio**, and an **OpenAI-compatible REST API** with multi-tier engine support.
+With version 2.4, ArboTTS brings the **Nano Paradee-8M INT8 tier (9.04 MB, 24 kHz)** for browser WASM and edge devices, **Kokoro ONNX 24 kHz tier** with native Indonesian voice packs (`id_arbo`, `id_arba`), **Zero-Shot Voice Cloning on CPU** with flow-based ToneColorConverter, **High-Definition Multi-Persona Studio Synthesis**, an interactive browser-based **Web UI Studio**, and an **OpenAI-compatible REST API** with multi-tier engine support.
 
 Engineered for resource-constrained environments, ArboTTS runs smoothly on standard laptops, mini PCs, edge devices, and server instances without requiring a GPU.
 
