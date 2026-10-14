@@ -45,6 +45,7 @@ ArboTTS provides tiered models to balance acoustic fidelity against memory footp
 
 | Tier | Model File | Size (ONNX) | Parameters | Architecture Config | Mean CPU Latency / RTF | Target Platform |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| 🪶 **Nano / Paradee** *(v2.4)* | `arbo_paradee_8m.onnx` | **8.62 MB** | **8.08 M** | Distilled Albert + iSTFTNet (24 kHz, INT8 Quantized) | ~40–50 ms (0.04x RTF, 24x realtime) | Ultra-compact, IoT, edge devices, zero-dep standalone |
 | 🌸 **Kokoro ONNX** *(v2.3)* | `model_quantized.onnx` | **~88 MB** | **82 M** | StyleTTS 2 + iSTFTNet (24 kHz, INT8 Quantized) | ~400 ms (0.05x RTF) | Studio 24 kHz, native Indonesian cadence & zero-shot cloning |
 | 🎙️ **Studio Clone** | `Qwen3-SpeechLM` | **~550 MB** | **1.7 B (1.58-bit)** | Autoregressive Neural Codec Speech LM | Sub-second (RTX GPU) / ~1.0x RTF | True zero-shot voice cloning (timbre + prosody) |
 | 🚀 **Standard** *(Default)* | `arbotts_v1.onnx` | **60.57 MB** | **23.66 M** | Hidden 192, Filter 768, 6 Layers, ResBlock1 | ~100–140 ms (0.025x RTF) | Studio production, desktop, server |
@@ -147,6 +148,13 @@ tts_small.speak(
     speed=0.85,
 )
 
+# 🪶 Nano Tier (Paradee-8M): Ultra-compact 24 kHz (~8.6 MB INT8, zero dependencies)
+tts_nano = ArboTTS(tier="nano")
+tts_nano.speak(
+    text="Halo, ini adalah model Paradee delapan megabyte suara Ardi bahasa Indonesia.",
+    output_file="nano_output.wav",
+)
+
 # 🌸 Kokoro ONNX tier: 24 kHz Studio Naturalness (~88 MB INT8 Quantized)
 tts_kokoro = ArboTTS(tier="kokoro")
 tts_kokoro.speak(
@@ -179,6 +187,9 @@ Once installed, the `arbotts` command is accessible directly from your terminal:
 ```bash
 # 🇮🇩 Indonesian synthesis with Standard tier (default)
 arbotts "Halo, selamat datang di ArboTTS!" -o halo_id.wav -l id
+
+# 🪶 Nano tier (Paradee-8M ~8.6 MB INT8) ultra-compact synthesis
+arbotts "Halo, ini suara Paradee delapan megabita ArboTTS." --tier nano -o nano_out.wav
 
 # ⚡ Small tier fast synthesis
 arbotts "Proses selesai dalam waktu sekejap." --tier small -o small_out.wav

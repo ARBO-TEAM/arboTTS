@@ -31,7 +31,7 @@ def main() -> None:
     ]
     parser.add_argument("-sp", "--speaker", type=str, default="arbo", choices=available_speakers, help=f"Speaker profile: {', '.join(available_speakers)} (default: 'arbo')")
     parser.add_argument("-s", "--speed", type=float, default=0.85, help="Speech speed (default: 0.85 for relaxed announcer tempo)")
-    parser.add_argument("-t", "--tier", type=str, default="standard", choices=["standard", "small", "tiny", "kokoro", "studio_clone"], help="Model tier: 'standard' (60MB), 'small' (~24MB), 'tiny' (~12MB), 'kokoro' (~88MB ONNX 24kHz), or 'studio_clone' (~550MB in-context) (default: 'standard')")
+    parser.add_argument("-t", "--tier", type=str, default="standard", choices=["standard", "small", "tiny", "nano", "paradee", "kokoro", "studio_clone"], help="Model tier: 'nano' / 'paradee' (~8.6MB), 'standard' (60MB), 'small' (~24MB), 'tiny' (~12MB), 'kokoro' (~88MB ONNX 24kHz), or 'studio_clone' (~550MB in-context) (default: 'standard')")
     parser.add_argument("--reference", "-ref", type=str, default=None, help="Path to reference audio file for zero-shot voice cloning (e.g. sample.wav)")
     parser.add_argument("--reference-text", "-rt", type=str, default=None, help="Transcript of reference audio (optional, auto-transcribed if omitted)")
     parser.add_argument("-m", "--model", type=str, default=None, help="Custom ONNX model path (optional)")
@@ -42,6 +42,18 @@ def main() -> None:
     if not args.text:
         parser.print_help()
         print("\nTip: Run 'arbotts serve' to launch the interactive local Web UI Studio.")
+        return
+
+    if args.tier in ("nano", "paradee"):
+        from arbotts.paradee_engine import ParadeeONNXSynthesizer
+
+        paradee_engine = ParadeeONNXSynthesizer(model_path=args.model)
+        latency_ms = paradee_engine.save(
+            text=args.text,
+            output_path=args.output,
+            speed=args.speed,
+        )
+        print(f"[ArboTTS Paradee-8M Nano ~8.6MB] Synthesized successfully -> {args.output} (Latency: {latency_ms:.1f}ms, 24 kHz)")
         return
 
     if args.tier == "kokoro":

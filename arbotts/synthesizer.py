@@ -42,6 +42,19 @@ class ArboTTS:
         self._studio_clone = None
         self._auto_clone = None
         self._kokoro = None
+        self._paradee = None
+
+        if tier in ("nano", "paradee"):
+            from arbotts.paradee_engine import ParadeeONNXSynthesizer
+
+            self._paradee = ParadeeONNXSynthesizer(model_path=model_path, num_threads=num_threads)
+            self.sampling_rate = self._paradee.sample_rate
+            self.model_path = self._paradee.model_path
+            self.config_path = None
+            self.profiles = {}
+            self.session = None
+            self.has_sid = False
+            return
 
         if tier == "kokoro":
             from arbotts.kokoro_engine import KokoroONNXSynthesizer
@@ -169,6 +182,13 @@ class ArboTTS:
         reference : str | Path | None
             Required only when tier='studio_clone'.
         """
+        if self.tier in ("nano", "paradee"):
+            if self._paradee is None:
+                from arbotts.paradee_engine import ParadeeONNXSynthesizer
+                self._paradee = ParadeeONNXSynthesizer()
+            audio, latency_ms = self._paradee.synthesize(text, speed=speed, lang=lang)
+            return audio, latency_ms
+
         if self.tier == "kokoro":
             t0 = time.perf_counter()
             if self._kokoro is None:

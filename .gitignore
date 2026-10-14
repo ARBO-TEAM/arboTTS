@@ -36,9 +36,11 @@ dataset/wavs/
 dataset/pilot_wavs/
 dataset/user_clips/
 
-# Model binaries (released via GitHub Releases v1.0.0)
+# Model binaries (released via GitHub Releases v1.0.0, except lightweight nano tier)
 *.onnx
 *.onnx.json
+!arbotts/models/*.onnx
+!arbotts/models/*.json
 
 # User adaptation & dataset
 dataset/train_user_adaptation.txt
@@ -47,3 +49,4 @@ dataset/train_user_adaptation.txt
 recordings/
 tools/*_tholib.py
 tools/*_edukasi.py
+examples/docs/
