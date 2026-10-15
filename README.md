@@ -1,18 +1,19 @@
-# ArboTTS (v2.4) 🎙️🇮🇩🇬🇧
+# ArboTTS (v2.5) 🎙️🇮🇩🇬🇧
 
 **English** | [Bahasa Indonesia](README-ID.md)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Live Demo: GitHub Pages](https://img.shields.io/badge/Live%20Demo-GitHub%20Pages%20(WASM)-38bdf8.svg)](https://arbo-team.github.io/arbotts-demo/)
 [![Python: 3.10+](https://img.shields.io/badge/Python-3.10%2B-brightgreen.svg)](https://www.python.org/)
-[![Model Size: 8.6 MB](https://img.shields.io/badge/Nano%20Size-8.62%20MB-orange.svg)](https://github.com/ARBO-TEAM/arboTTS/releases)
+[![MCU Size: 1.55 MB](https://img.shields.io/badge/MCU%20Size-1.55%20MB%20INT8-brightgreen.svg)](https://github.com/ARBO-TEAM/arboTTS/releases)
+[![Nano Size: 8.6 MB](https://img.shields.io/badge/Nano%20Size-8.62%20MB-orange.svg)](https://github.com/ARBO-TEAM/arboTTS/releases)
 [![Inference: CPU](https://img.shields.io/badge/Inference-Pure%20CPU%20(RTF%200.025x)-purple.svg)](#-model-specifications--parameter-breakdown)
 
 > 🌐 **Try it Live (100% Client-Side WebAssembly)**: Experience instant Indonesian TTS in your browser with zero server cost at **[arbo-team.github.io/arbotts-demo](https://arbo-team.github.io/arbotts-demo/)** (Source: [arbotts-demo](https://github.com/ARBO-TEAM/arbotts-demo)). No backend, no API keys, and complete privacy!
 
-**ArboTTS** is an ultra-lightweight, production-grade bilingual (**Indonesian & English**) Text-to-Speech (TTS) engine powered by **VITS**, **Kokoro**, and distilled **Paradee-8M** architectures, optimized for standalone CPU inference using **ONNX Runtime**.
+**ArboTTS** is an ultra-lightweight, production-grade bilingual (**Indonesian & English**) Text-to-Speech (TTS) engine powered by **VITS**, **Kokoro**, distilled **Paradee-8M**, and embedded **Piperlite C99 INT8** architectures, optimized for standalone CPU and microcontroller inference.
 
-With version 2.4, ArboTTS brings the **Nano Paradee-8M INT8 tier (9.04 MB, 24 kHz)** for browser WASM and edge devices, **Kokoro ONNX 24 kHz tier** with native Indonesian voice packs (`id_arbo`, `id_arba`), **Zero-Shot Voice Cloning on CPU** with flow-based ToneColorConverter, **High-Definition Multi-Persona Studio Synthesis**, an interactive browser-based **Web UI Studio**, and an **OpenAI-compatible REST API** with multi-tier engine support.
+With version 2.5, ArboTTS brings the **Bilingual MCU INT8 tier (~1.55 MB, 22.05 kHz)** with zero PSRAM requirements on ESP32-S3, dual native Indonesian and English synthesis, and auto-cadence pacing (1.25 length_scale for English), alongside the **Nano Paradee-8M INT8 tier (8.62 MB, 24 kHz)** for browser WASM and edge devices, **Kokoro ONNX 24 kHz tier** with native Indonesian voice packs (`id_arbo`, `id_arba`), **Zero-Shot Voice Cloning on CPU** with flow-based ToneColorConverter, **High-Definition Multi-Persona Studio Synthesis**, an interactive browser-based **Web UI Studio**, and an **OpenAI-compatible REST API** with multi-tier engine support.
 
 Engineered for resource-constrained environments, ArboTTS runs smoothly on standard laptops, mini PCs, edge devices, and server instances without requiring a GPU.
 
@@ -43,8 +44,9 @@ ArboTTS v2.0 includes 7 professionally calibrated voice personas, categorized in
 
 ArboTTS provides tiered models to balance acoustic fidelity against memory footprint and compute latency:
 
-| Tier | Model File | Size (ONNX) | Parameters | Architecture Config | Mean CPU Latency / RTF | Target Platform |
+| Tier | Model File | Size (ONNX/C99) | Parameters | Architecture Config | Mean CPU Latency / RTF | Target Platform |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| ⚡ **MCU / Bilingual** *(v2.5)* | `mcu_bilingual_arbo_kokoro_745k_q8.bin` | **1.55 MB** | **1.56 M** | Distilled Kokoro + Arbo Student + Piperlite iSTFT (22.05 kHz, C99 INT8) | ~30–45 ms (0.015x RTF) | Microcontrollers (ESP32-S3 zero PSRAM), IoT, embedded edge |
 | 🪶 **Nano / Paradee** *(v2.4)* | `arbo_paradee_8m.onnx` | **8.62 MB** | **8.08 M** | Distilled Albert + iSTFTNet (24 kHz, INT8 Quantized) | ~40–50 ms (0.04x RTF, 24x realtime) | Ultra-compact, IoT, edge devices, zero-dep standalone |
 | 🌸 **Kokoro ONNX** *(v2.3)* | `model_quantized.onnx` | **~88 MB** | **82 M** | StyleTTS 2 + iSTFTNet (24 kHz, INT8 Quantized) | ~400 ms (0.05x RTF) | Studio 24 kHz, native Indonesian cadence & zero-shot cloning |
 | 🎙️ **Studio Clone** | `Qwen3-SpeechLM` | **~550 MB** | **1.7 B (1.58-bit)** | Autoregressive Neural Codec Speech LM | Sub-second (RTX GPU) / ~1.0x RTF | True zero-shot voice cloning (timbre + prosody) |
@@ -155,6 +157,19 @@ tts_nano.speak(
     output_file="nano_output.wav",
 )
 
+# ⚡ MCU Bilingual Tier (~1.55 MB INT8): Embedded ESP32-S3 zero-PSRAM (ID + EN)
+tts_mcu = ArboTTS(tier="mcu")
+tts_mcu.speak(
+    text="Halo, ini suara bilingual mikrokontroler ArboTTS.",
+    output_file="mcu_id.wav",
+    lang="id",
+)
+tts_mcu.speak(
+    text="Hello, this is bilingual English speech synthesis running on microcontroller.",
+    output_file="mcu_en.wav",
+    lang="en",  # Auto-pacing length_scale = 1.25 for relaxed English cadence
+)
+
 # 🌸 Kokoro ONNX tier: 24 kHz Studio Naturalness (~88 MB INT8 Quantized)
 tts_kokoro = ArboTTS(tier="kokoro")
 tts_kokoro.speak(
@@ -190,6 +205,10 @@ arbotts "Halo, selamat datang di ArboTTS!" -o halo_id.wav -l id
 
 # 🪶 Nano tier (Paradee-8M ~8.6 MB INT8) ultra-compact synthesis
 arbotts "Halo, ini suara Paradee delapan megabita ArboTTS." --tier nano -o nano_out.wav
+
+# ⚡ MCU tier (~1.55 MB INT8 C99) ultra-lightweight bilingual synthesis
+arbotts "Halo selamat pagi dunia." --tier mcu -l id -o mcu_id.wav
+arbotts "Hello world, bilingual English speech on microcontroller." --tier mcu -l en -o mcu_en.wav
 
 # ⚡ Small tier fast synthesis
 arbotts "Proses selesai dalam waktu sekejap." --tier small -o small_out.wav

@@ -43,6 +43,19 @@ class ArboTTS:
         self._auto_clone = None
         self._kokoro = None
         self._paradee = None
+        self._mcu = None
+
+        if tier in ("mcu", "bilingual", "micro"):
+            from arbotts.mcu_engine import BilingualMCUSynthesizer
+
+            self._mcu = BilingualMCUSynthesizer(bundle_path=model_path)
+            self.sampling_rate = self._mcu.sample_rate
+            self.model_path = self._mcu.bundle_path
+            self.config_path = None
+            self.profiles = {}
+            self.session = None
+            self.has_sid = False
+            return
 
         if tier in ("nano", "paradee"):
             from arbotts.paradee_engine import ParadeeONNXSynthesizer
@@ -182,6 +195,14 @@ class ArboTTS:
         reference : str | Path | None
             Required only when tier='studio_clone'.
         """
+        if self.tier in ("mcu", "bilingual", "micro"):
+            if self._mcu is None:
+                from arbotts.mcu_engine import BilingualMCUSynthesizer
+
+                self._mcu = BilingualMCUSynthesizer()
+            audio, latency_ms = self._mcu.synthesize(text, speed=speed, lang=lang)
+            return audio, latency_ms
+
         if self.tier in ("nano", "paradee"):
             if self._paradee is None:
                 from arbotts.paradee_engine import ParadeeONNXSynthesizer

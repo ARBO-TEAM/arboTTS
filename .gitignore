@@ -36,11 +36,16 @@ dataset/wavs/
 dataset/pilot_wavs/
 dataset/user_clips/
 
-# Model binaries (released via GitHub Releases v1.0.0, except lightweight nano tier)
+# Model binaries (released via GitHub Releases v1.0.0, except lightweight nano/mcu tier)
 *.onnx
 *.onnx.json
 !arbotts/models/*.onnx
 !arbotts/models/*.json
+!arbotts/models/*.bin
+!arbotts/models/*.exe
+!arbotts/models/*.h
+arbotts/models/front-q8/
+arbotts/models/dec-q8/
 
 # User adaptation & dataset
 dataset/train_user_adaptation.txt

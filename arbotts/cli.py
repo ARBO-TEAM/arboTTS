@@ -31,7 +31,7 @@ def main() -> None:
     ]
     parser.add_argument("-sp", "--speaker", type=str, default="arbo", choices=available_speakers, help=f"Speaker profile: {', '.join(available_speakers)} (default: 'arbo')")
     parser.add_argument("-s", "--speed", type=float, default=0.85, help="Speech speed (default: 0.85 for relaxed announcer tempo)")
-    parser.add_argument("-t", "--tier", type=str, default="standard", choices=["standard", "small", "tiny", "nano", "paradee", "kokoro", "studio_clone"], help="Model tier: 'nano' / 'paradee' (~8.6MB), 'standard' (60MB), 'small' (~24MB), 'tiny' (~12MB), 'kokoro' (~88MB ONNX 24kHz), or 'studio_clone' (~550MB in-context) (default: 'standard')")
+    parser.add_argument("-t", "--tier", type=str, default="standard", choices=["standard", "small", "tiny", "nano", "paradee", "kokoro", "studio_clone", "mcu", "bilingual", "micro"], help="Model tier: 'mcu' / 'bilingual' (~1.55MB INT8 C99 for ESP32/embedded), 'nano' / 'paradee' (~8.6MB), 'standard' (60MB), 'small' (~24MB), 'tiny' (~12MB), 'kokoro' (~88MB ONNX 24kHz), or 'studio_clone' (~550MB in-context) (default: 'standard')")
     parser.add_argument("--reference", "-ref", type=str, default=None, help="Path to reference audio file for zero-shot voice cloning (e.g. sample.wav)")
     parser.add_argument("--reference-text", "-rt", type=str, default=None, help="Transcript of reference audio (optional, auto-transcribed if omitted)")
     parser.add_argument("-m", "--model", type=str, default=None, help="Custom ONNX model path (optional)")
@@ -42,6 +42,19 @@ def main() -> None:
     if not args.text:
         parser.print_help()
         print("\nTip: Run 'arbotts serve' to launch the interactive local Web UI Studio.")
+        return
+
+    if args.tier in ("mcu", "bilingual", "micro"):
+        from arbotts.mcu_engine import BilingualMCUSynthesizer
+
+        mcu_engine = BilingualMCUSynthesizer(bundle_path=args.model)
+        latency_ms = mcu_engine.save(
+            text=args.text,
+            output_path=args.output,
+            speed=args.speed if args.speed != 0.85 else None,
+            lang=args.lang,
+        )
+        print(f"[ArboTTS Bilingual MCU ~1.55MB INT8] Synthesized successfully ({args.lang}) -> {args.output} (Latency: {latency_ms:.1f}ms, 22.05 kHz)")
         return
 
     if args.tier in ("nano", "paradee"):
